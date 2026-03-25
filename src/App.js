@@ -517,9 +517,10 @@ function RevModal({data,onSave,onClose}) {
     <Overlay onClose={onClose}>
       <div style={{fontSize:16,fontWeight:700,color:C.text,marginBottom:6}}>Update Revenue — {data.company}</div>
       <div style={{fontSize:11,color:C.accent,marginBottom:16,fontStyle:"italic"}}>Changes sync to all connected users in real time.</div>
+      <MF label="Annual Target (₱)"><input style={S.modalInput} type="number" value={f.annual_target} onChange={e=>s("annual_target", Number(e.target.value))}/></MF>
+      <MF label="Q1 Target (₱)"><input  style={S.modalInput} type="number" value={f.q1_target}     onChange={e=>s("q1_target",    Number(e.target.value))}/></MF>
       <MF label="Q1 Actual (₱)"><input  style={S.modalInput} type="number" value={f.q1_actual}     onChange={e=>s("q1_actual",    Number(e.target.value))}/></MF>
       <MF label="YTD Actual (₱)"><input style={S.modalInput} type="number" value={f.ytd_actual}    onChange={e=>s("ytd_actual",   Number(e.target.value))}/></MF>
-      <MF label="Q1 Target (₱)"><input  style={S.modalInput} type="number" value={f.q1_target}     onChange={e=>s("q1_target",    Number(e.target.value))}/></MF>
       <div style={{display:"flex",gap:10,justifyContent:"flex-end",marginTop:16}}>
         <button style={S.btnGhost} onClick={onClose} disabled={saving}>Cancel</button>
         <button style={S.btnPrimary} onClick={async()=>{setSaving(true);await onSave(f);}} disabled={saving}>{saving?"Saving…":"Save to Supabase"}</button>
