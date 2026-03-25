@@ -160,7 +160,12 @@ export default function App() {
     const isNew = !rock.id;
     const payload = isNew ? {...rock, id:`r${Date.now()}`} : rock;
     try {
-      await db.upsert("rocks", payload);
+      if (isNew) {
+        await db.upsert("rocks", payload);
+      } else {
+        const { id, ...fields } = payload;
+        await sbFetch("rocks", { method:"PATCH", body:fields, query:`?id=eq.${id}` });
+      }
       setRocks(prev => isNew ? [...prev,payload] : prev.map(r=>r.id===payload.id?payload:r));
       setLastSync(new Date()); setSyncStatus("live");
     } catch(e) { alert("Save failed: "+e.message); }
