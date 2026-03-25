@@ -145,13 +145,18 @@ export default function App() {
   // ── Write helpers ──────────────────────────────────────────────────────────
   const saveRevenue = async (row) => {
     try {
-      const { id, updated_at, ...fields } = row;
+      const { id, updated_at, _activeQ, ...fields } = row;
       const clean = {
         ...fields,
         annual_target: Math.round(Number(fields.annual_target)||0),
-        q1_target:     Math.round(Number(fields.q1_target)||0),
-        q1_actual:     Math.round(Number(fields.q1_actual)||0),
-        ytd_actual:    Math.round(Number(fields.ytd_actual)||0),
+        q1_target: Math.round(Number(fields.q1_target)||0),
+        q1_actual: Math.round(Number(fields.q1_actual)||0),
+        q2_target: Math.round(Number(fields.q2_target)||0),
+        q2_actual: Math.round(Number(fields.q2_actual)||0),
+        q3_target: Math.round(Number(fields.q3_target)||0),
+        q3_actual: Math.round(Number(fields.q3_actual)||0),
+        q4_target: Math.round(Number(fields.q4_target)||0),
+        q4_actual: Math.round(Number(fields.q4_actual)||0),
       };
       await sbFetch("revenue", { method:"PATCH", body:clean, query:`?id=eq.${id}` });
       setRevenue(prev => prev.map(r=>r.id===row.id?{...row,...clean}:r));
@@ -257,23 +262,84 @@ function Sidebar({page,setPage,user,syncStatus,lastSync,onRefresh,onLogout}) {
 }
 
 // ─── OVERVIEW ─────────────────────────────────────────────────────────────────
+const QUARTERS = ["Q1","Q2","Q3","Q4"];
+const Q_MONTHS = { Q1:"Jan–Mar", Q2:"Apr–Jun", Q3:"Jul–Sep", Q4:"Oct–Dec" };
+
 function OverviewPage({revenue,activeSector,setActiveSector,isOwner,onEditRev}) {
+  const [activeQ, setActiveQ] = useState("Q1");
+  const qT = k => `${activeQ.toLowerCase()}_${k}`;
   const filtered = activeSector==="All"?revenue:revenue.filter(r=>r.sector===activeSector);
   const g = k => filtered.reduce((s,r)=>s+(r[k]||0),0);
-  const [tAnnual,tQ1T,tQ1A,tYTD] = ["annual_target","q1_target","q1_actual","ytd_actual"].map(g);
+
+  // Selected quarter
+  const tAnnual = g("annual_target");
+  const tQT     = g(qT("target"));
+  const tQA     = g(qT("actual"));
+
+  // Full year YTD = sum of all quarters actual
+  const tYTD = filtered.reduce((s,r)=>s+(r.q1_actual||0)+(r.q2_actual||0)+(r.q3_actual||0)+(r.q4_actual||0),0);
+
+  // Sector rollup for selected quarter
   const sectorRollup = SECTORS.map(sec=>{
     const rows=revenue.filter(r=>r.sector===sec);
-    return {sector:sec, annualTarget:rows.reduce((s,r)=>s+(r.annual_target||0),0), q1Target:rows.reduce((s,r)=>s+(r.q1_target||0),0), q1Actual:rows.reduce((s,r)=>s+(r.q1_actual||0),0), ytdActual:rows.reduce((s,r)=>s+(r.ytd_actual||0),0)};
+    return {
+      sector: sec,
+      annualTarget: rows.reduce((s,r)=>s+(r.annual_target||0),0),
+      qTarget:      rows.reduce((s,r)=>s+(r[qT("target")]||0),0),
+      qActual:      rows.reduce((s,r)=>s+(r[qT("actual")]||0),0),
+      ytd:          rows.reduce((s,r)=>s+(r.q1_actual||0)+(r.q2_actual||0)+(r.q3_actual||0)+(r.q4_actual||0),0),
+    };
   });
+
   return (
     <div style={S.page}>
-      <PH title="Revenue Overview" sub="Business Unit & Sector Performance · Q1 and YTD 2026"/>
-      <div style={S.strip}>
-        <KPI label="Annual Target" val={fmt(tAnnual)} sub="FY 2026"                                     clr="#64748b"/>
-        <KPI label="Q1 Target"     val={fmt(tQ1T)}    sub="Jan – Mar 2026"                              clr="#2563eb"/>
-        <KPI label="Q1 Actual"     val={fmt(tQ1A)}    sub={`${pct(tQ1A,tQ1T)}% of Q1 target`}          clr="#0e7490"/>
-        <KPI label="YTD Actual"    val={fmt(tYTD)}    sub={`${pct(tYTD,tAnnual)}% of annual`}           clr="#c0480a"/>
+      <PH title="Revenue Overview" sub={`Business Unit & Sector Performance · ${activeQ} 2026`}/>
+
+      {/* Quarter Switcher */}
+      <div style={{display:"flex",gap:8,marginBottom:20,alignItems:"center"}}>
+        <span style={{fontSize:11,color:C.muted,marginRight:4,letterSpacing:1}}>QUARTER:</span>
+        {QUARTERS.map(q=>(
+          <button key={q} onClick={()=>setActiveQ(q)} style={{
+            padding:"6px 18px", borderRadius:4, border:`1px solid ${activeQ===q?"#1a3f7a":C.border}`,
+            background: activeQ===q?"#1a3f7a":"none",
+            color: activeQ===q?"#fff":C.muted,
+            fontSize:12, fontWeight:activeQ===q?700:400, cursor:"pointer", letterSpacing:1,
+          }}>{q}</button>
+        ))}
+        <span style={{fontSize:11,color:C.muted,marginLeft:8}}>{Q_MONTHS[activeQ]} 2026</span>
       </div>
+
+      {/* KPI Strip */}
+      <div style={S.strip}>
+        <KPI label="Annual Target"          val={fmt(tAnnual)} sub="FY 2026"                                        clr="#64748b"/>
+        <KPI label={`${activeQ} Target`}    val={fmt(tQT)}     sub={Q_MONTHS[activeQ]}                              clr="#1a3f7a"/>
+        <KPI label={`${activeQ} Actual`}    val={fmt(tQA)}     sub={`${pct(tQA,tQT)}% of ${activeQ} target`}        clr="#0e7490"/>
+        <KPI label="Full Year YTD"          val={fmt(tYTD)}    sub={`${pct(tYTD,tAnnual)}% of annual`}              clr="#c0480a"/>
+      </div>
+
+      {/* Full Year Progress Bar */}
+      <div style={{...S.card,padding:20,marginBottom:20}}>
+        <div style={{fontSize:11,fontWeight:700,color:C.muted,textTransform:"uppercase",letterSpacing:2,marginBottom:14}}>Full Year Progress — All Quarters</div>
+        {QUARTERS.map(q=>{
+          const qt = filtered.reduce((s,r)=>s+(r[`${q.toLowerCase()}_target`]||0),0);
+          const qa = filtered.reduce((s,r)=>s+(r[`${q.toLowerCase()}_actual`]||0),0);
+          const p  = pct(qa,qt);
+          const clr= p>=100?"#0e7a5a":p>=75?"#1a5fb4":p>=25?"#c0480a":"#b8c5d9";
+          return (
+            <div key={q} style={{marginBottom:10}}>
+              <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+                <span style={{fontSize:11,fontWeight:q===activeQ?700:400,color:q===activeQ?"#0a1628":C.muted}}>{q} {Q_MONTHS[q]}</span>
+                <span style={{fontSize:11,color:C.muted}}>{fmt(qa)} / {fmt(qt)} <span style={{fontWeight:700,color:clr}}>{p}%</span></span>
+              </div>
+              <div style={{height:q===activeQ?8:5,background:C.border,borderRadius:3,overflow:"hidden",border:q===activeQ?`1px solid #1a3f7a`:"none"}}>
+                <div style={{height:"100%",width:`${Math.min(p,100)}%`,background:clr,borderRadius:3,transition:"width 0.4s"}}/>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Sector Filter */}
       <div style={S.filterRow}>
         {["All",...SECTORS].map(s=>(
           <button key={s} style={{...S.filterBtn,...(activeSector===s?S.filterBtnActive:{})}} onClick={()=>setActiveSector(s)}>
@@ -281,30 +347,39 @@ function OverviewPage({revenue,activeSector,setActiveSector,isOwner,onEditRev}) 
           </button>
         ))}
       </div>
-      {activeSector==="All"&&<div style={S.sectorGrid}>{sectorRollup.map(s=><SectorCard key={s.sector} d={s}/>)}</div>}
+
+      {/* Sector Cards */}
+      {activeSector==="All"&&<div style={S.sectorGrid}>{sectorRollup.map(s=><SectorCard key={s.sector} d={s} activeQ={activeQ}/>)}</div>}
+
+      {/* BU Table */}
       <div style={S.card}>
-        <div style={S.cardTitle}>Business Unit Revenue Detail</div>
+        <div style={S.cardTitle}>Business Unit Revenue Detail — {activeQ} {Q_MONTHS[activeQ]}</div>
         <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
           <thead><tr style={{background:C.surface}}>
             <th style={{...S.th,textAlign:"left"}}>Company</th>
-            <th style={S.th}>Annual Target</th><th style={S.th}>Q1 Target</th>
-            <th style={S.th}>Q1 Actual</th><th style={S.th}>Q1 Attainment</th>
-            <th style={S.th}>YTD Actual</th><th style={S.th}>YTD Attainment</th>
+            <th style={S.th}>Annual Target</th>
+            <th style={S.th}>{activeQ} Target</th>
+            <th style={S.th}>{activeQ} Actual</th>
+            <th style={S.th}>{activeQ} Attainment</th>
+            <th style={S.th}>YTD Actual</th>
+            <th style={S.th}>YTD vs Annual</th>
             {isOwner&&<th style={S.th}>Edit</th>}
           </tr></thead>
           <tbody>{filtered.map((r,i)=>{
-            const q1p=pct(r.q1_actual||0,r.q1_target||0), ytdp=pct(r.ytd_actual||0,r.annual_target||0);
+            const qp  = pct(r[qT("actual")]||0, r[qT("target")]||0);
+            const ytd = (r.q1_actual||0)+(r.q2_actual||0)+(r.q3_actual||0)+(r.q4_actual||0);
+            const ytdp= pct(ytd, r.annual_target||0);
             return <tr key={r.id} style={{background:i%2?C.surface:"transparent"}}>
               <td style={{padding:"12px 14px",display:"flex",alignItems:"center",gap:10,borderBottom:`1px solid rgba(0,0,0,0.05)`}}>
                 <span style={S.buTag}>{r.company}</span><span style={{color:C.muted,fontSize:11}}>{r.full_name}</span>
               </td>
               <td style={S.td}>{fmt(r.annual_target||0)}</td>
-              <td style={S.td}>{fmt(r.q1_target||0)}</td>
-              <td style={S.td}>{fmt(r.q1_actual||0)}</td>
-              <td style={S.td}><MBar pct={q1p}  clr={q1p >=100?"#0e7a5a":q1p >=75?"#1a5fb4":"#c0480a"}/></td>
-              <td style={S.td}>{fmt(r.ytd_actual||0)}</td>
+              <td style={S.td}>{fmt(r[qT("target")]||0)}</td>
+              <td style={S.td}>{fmt(r[qT("actual")]||0)}</td>
+              <td style={S.td}><MBar pct={qp}   clr={qp  >=100?"#0e7a5a":qp  >=75?"#1a5fb4":"#c0480a"}/></td>
+              <td style={S.td}>{fmt(ytd)}</td>
               <td style={S.td}><MBar pct={ytdp} clr={ytdp>=100?"#0e7a5a":ytdp>=75?"#1a5fb4":"#c0480a"}/></td>
-              {isOwner&&<td style={S.td}><button style={S.editBtn} onClick={()=>onEditRev(r)}>Edit</button></td>}
+              {isOwner&&<td style={S.td}><button style={S.editBtn} onClick={()=>onEditRev({...r,_activeQ:activeQ})}>Edit</button></td>}
             </tr>;
           })}</tbody>
         </table>
@@ -314,18 +389,20 @@ function OverviewPage({revenue,activeSector,setActiveSector,isOwner,onEditRev}) 
   );
 }
 
-function SectorCard({d}) {
-  const clr=SECTOR_CLR[d.sector]||"#7a8c7e";
+function SectorCard({d, activeQ}) {
+  const clr=SECTOR_CLR[d.sector]||"#1a3f7a";
+  const qp = pct(d.qActual, d.qTarget);
+  const ytdp = pct(d.ytd, d.annualTarget);
   return (
     <div style={{...S.sectorCard,borderTop:`3px solid ${clr}`}}>
       <div style={{fontSize:14,fontWeight:700,color:C.text,marginBottom:2}}>{d.sector.split(" & ")[0].split(" ").slice(0,2).join(" ")}</div>
       <div style={{fontSize:10,color:C.muted,marginBottom:14}}>{d.sector}</div>
       <div style={{display:"flex",gap:16,marginBottom:12}}>
         <div><div style={{fontSize:9,color:C.muted,textTransform:"uppercase",letterSpacing:1}}>Annual Target</div><div style={{fontSize:14,fontWeight:700}}>{fmt(d.annualTarget)}</div></div>
-        <div><div style={{fontSize:9,color:C.muted,textTransform:"uppercase",letterSpacing:1}}>Q1 Target</div><div style={{fontSize:14,fontWeight:700}}>{fmt(d.q1Target)}</div></div>
+        <div><div style={{fontSize:9,color:C.muted,textTransform:"uppercase",letterSpacing:1}}>{activeQ} Target</div><div style={{fontSize:14,fontWeight:700}}>{fmt(d.qTarget)}</div></div>
       </div>
-      <PBar label="Q1 Attainment"  p={pct(d.q1Actual,d.q1Target)}   clr={clr}/>
-      <PBar label="YTD Attainment" p={pct(d.ytdActual,d.annualTarget)} clr={clr}/>
+      <PBar label={`${activeQ} Attainment`} p={qp}   clr={clr}/>
+      <PBar label="YTD vs Annual"           p={ytdp} clr={clr}/>
     </div>
   );
 }
@@ -528,6 +605,13 @@ function RockModal({rock,saving,onSave,onClose}) {
 function RevModal({data,onSave,onClose,isAdmin}) {
   const [f,setF]=useState({...data}), [saving,setSaving]=useState(false);
   const s=(k,v)=>setF(p=>({...p,[k]:v}));
+  const activeQ = data._activeQ || "Q1";
+  const qSections = [
+    {q:"Q1", label:"Q1 (Jan–Mar)", t:"q1_target", a:"q1_actual"},
+    {q:"Q2", label:"Q2 (Apr–Jun)", t:"q2_target", a:"q2_actual"},
+    {q:"Q3", label:"Q3 (Jul–Sep)", t:"q3_target", a:"q3_actual"},
+    {q:"Q4", label:"Q4 (Oct–Dec)", t:"q4_target", a:"q4_actual"},
+  ];
   return (
     <Overlay onClose={onClose}>
       <div style={{fontSize:16,fontWeight:700,color:C.text,marginBottom:6}}>Update Revenue — {data.company}</div>
@@ -540,12 +624,21 @@ function RevModal({data,onSave,onClose,isAdmin}) {
             {SECTORS.map(x=><option key={x}>{x}</option>)}
           </select>
         </MF>
-        <div style={{height:1,background:C.border,margin:"4px 0 16px"}}/>
+        <div style={{height:1,background:C.border,margin:"4px 0 12px"}}/>
       </>}
-      <MF label="Annual Target (₱)"><input style={S.modalInput} type="number" value={f.annual_target} onChange={e=>s("annual_target", Number(e.target.value))}/></MF>
-      <MF label="Q1 Target (₱)"><input  style={S.modalInput} type="number" value={f.q1_target}     onChange={e=>s("q1_target",    Number(e.target.value))}/></MF>
-      <MF label="Q1 Actual (₱)"><input  style={S.modalInput} type="number" value={f.q1_actual}     onChange={e=>s("q1_actual",    Number(e.target.value))}/></MF>
-      <MF label="YTD Actual (₱)"><input style={S.modalInput} type="number" value={f.ytd_actual}    onChange={e=>s("ytd_actual",   Number(e.target.value))}/></MF>
+      <MF label="Annual Target (₱)"><input style={S.modalInput} type="number" value={f.annual_target||0} onChange={e=>s("annual_target",Number(e.target.value))}/></MF>
+      <div style={{height:1,background:C.border,margin:"4px 0 12px"}}/>
+      {qSections.map(({q,label,t,a})=>(
+        <div key={q} style={{marginBottom:12,padding:12,borderRadius:6,border:`1px solid ${q===activeQ?"#1a3f7a":C.border}`,background:q===activeQ?"rgba(26,63,122,0.04)":"transparent"}}>
+          <div style={{fontSize:11,fontWeight:700,color:q===activeQ?"#1a3f7a":C.muted,marginBottom:8,textTransform:"uppercase",letterSpacing:1}}>
+            {label}{q===activeQ&&<span style={{marginLeft:8,background:"#1a3f7a",color:"#fff",fontSize:9,padding:"1px 6px",borderRadius:3}}>Active</span>}
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+            <MF label="Target (₱)"><input style={S.modalInput} type="number" value={f[t]||0} onChange={e=>s(t,Number(e.target.value))}/></MF>
+            <MF label="Actual (₱)"><input style={S.modalInput} type="number" value={f[a]||0} onChange={e=>s(a,Number(e.target.value))}/></MF>
+          </div>
+        </div>
+      ))}
       <div style={{display:"flex",gap:10,justifyContent:"flex-end",marginTop:16}}>
         <button style={S.btnGhost} onClick={onClose} disabled={saving}>Cancel</button>
         <button style={S.btnPrimary} onClick={async()=>{setSaving(true);await onSave(f);}} disabled={saving}>{saving?"Saving…":"Save to Supabase"}</button>
