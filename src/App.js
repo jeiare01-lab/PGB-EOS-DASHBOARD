@@ -189,7 +189,7 @@ export default function App() {
         {page==="rocks"     && <RocksPage     rocks={rocks}      isOwner={isOwner} onSave={saveRock} onDelete={deleteRock} modal={rockModal} setModal={setRockModal}/>}
         {page==="scorecard" && <ScorecardPage rocks={rocks}      revenue={revenue}/>}
       </main>
-      {revModal&&isOwner&&<RevModal data={revModal} onSave={async u=>{await saveRevenue(u);setRevModal(null);}} onClose={()=>setRevModal(null)}/>}
+      {revModal&&isOwner&&<RevModal data={revModal} isAdmin={isAdmin} onSave={async u=>{await saveRevenue(u);setRevModal(null);}} onClose={()=>setRevModal(null)}/>}
     </div>
   );
 }
@@ -517,13 +517,23 @@ function RockModal({rock,saving,onSave,onClose}) {
   );
 }
 
-function RevModal({data,onSave,onClose}) {
+function RevModal({data,onSave,onClose,isAdmin}) {
   const [f,setF]=useState({...data}), [saving,setSaving]=useState(false);
   const s=(k,v)=>setF(p=>({...p,[k]:v}));
   return (
     <Overlay onClose={onClose}>
       <div style={{fontSize:16,fontWeight:700,color:C.text,marginBottom:6}}>Update Revenue — {data.company}</div>
       <div style={{fontSize:11,color:C.accent,marginBottom:16,fontStyle:"italic"}}>Changes sync to all connected users in real time.</div>
+      {isAdmin && <>
+        <MF label="Company Code"><input style={S.modalInput} value={f.company} onChange={e=>s("company",e.target.value)}/></MF>
+        <MF label="Full Company Name"><input style={S.modalInput} value={f.full_name} onChange={e=>s("full_name",e.target.value)}/></MF>
+        <MF label="Sector">
+          <select style={S.modalInput} value={f.sector} onChange={e=>s("sector",e.target.value)}>
+            {SECTORS.map(x=><option key={x}>{x}</option>)}
+          </select>
+        </MF>
+        <div style={{height:1,background:C.border,margin:"4px 0 16px"}}/>
+      </>}
       <MF label="Annual Target (₱)"><input style={S.modalInput} type="number" value={f.annual_target} onChange={e=>s("annual_target", Number(e.target.value))}/></MF>
       <MF label="Q1 Target (₱)"><input  style={S.modalInput} type="number" value={f.q1_target}     onChange={e=>s("q1_target",    Number(e.target.value))}/></MF>
       <MF label="Q1 Actual (₱)"><input  style={S.modalInput} type="number" value={f.q1_actual}     onChange={e=>s("q1_actual",    Number(e.target.value))}/></MF>
