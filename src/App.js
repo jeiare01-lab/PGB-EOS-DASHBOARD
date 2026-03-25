@@ -145,7 +145,7 @@ export default function App() {
   // ── Write helpers ──────────────────────────────────────────────────────────
   const saveRevenue = async (row) => {
     try {
-      const { id, ...fields } = row;
+      const { id, updated_at, ...fields } = row;
       await sbFetch("revenue", {
         method: "PATCH",
         body: fields,
@@ -163,7 +163,7 @@ export default function App() {
       if (isNew) {
         await db.upsert("rocks", payload);
       } else {
-        const { id, ...fields } = payload;
+        const { id, updated_at, ...fields } = payload;
         await sbFetch("rocks", { method:"PATCH", body:fields, query:`?id=eq.${id}` });
       }
       setRocks(prev => isNew ? [...prev,payload] : prev.map(r=>r.id===payload.id?payload:r));
