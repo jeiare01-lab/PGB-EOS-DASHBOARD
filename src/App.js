@@ -3,15 +3,17 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 // ─── SUPABASE CONFIG (REST API — no external library needed) ──────────────────
 const SB_URL = "https://dfuuqhtlrqewipcmcspo.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmdXVxaHRscnFld2lwY21jc3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzODY2MDYsImV4cCI6MjA4OTk2MjYwNn0.rm5ulcCR-u0RIzCP-0RYVmdi9t9G3Yz03p4QQ5881CU";
-const HEADERS = { "Content-Type": "application/json", "apikey": SB_KEY, "Authorization": `Bearer ${SB_KEY}`, "Prefer": "return=representation" };
+const HEADERS = { "Content-Type": "application/json", "apikey": SB_KEY, "Authorization": `Bearer ${SB_KEY}` };
+const HEADERS_RETURN = { ...HEADERS, "Prefer": "return=representation" };
 
 const sbFetch = async (table, opts = {}) => {
   const { method = "GET", body, query = "" } = opts;
+  const isPatch = method === "PATCH";
   const res = await fetch(`${SB_URL}/rest/v1/${table}${query}`, {
-    method, headers: HEADERS, body: body ? JSON.stringify(body) : undefined,
+    method, headers: isPatch ? HEADERS : HEADERS_RETURN, body: body ? JSON.stringify(body) : undefined,
   });
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-  return res.status === 204 ? null : res.json();
+  return res.status === 204 || isPatch ? null : res.json();
 };
 
 const db = {
@@ -143,7 +145,11 @@ export default function App() {
   // ── Write helpers ──────────────────────────────────────────────────────────
   const saveRevenue = async (row) => {
     try {
-      await db.upsert("revenue", row);
+      await sbFetch("revenue", {
+        method: "PATCH",
+        body: row,
+        query: `?id=eq.${row.id}`,
+      });
       setRevenue(prev => prev.map(r=>r.id===row.id?row:r));
       setLastSync(new Date()); setSyncStatus("live");
     } catch(e) { alert("Save failed: "+e.message); }
