@@ -76,17 +76,17 @@ const fmt = (n) => n>=1e9?`₱${(n/1e9).toFixed(2)}B`:n>=1e6?`₱${(n/1e6).toFix
 const pct  = (a,b) => b===0?0:Math.min(100,Math.round((a/b)*100));
 
 const STATUS_CFG = {
-  "✓ Target Met":{ bg:"#dff0e8", text:"#2a7a50", dot:"#2a7a50" },
-  "On Track":    { bg:"#ddeef5", text:"#1e6e8c", dot:"#1e6e8c" },
-  "At Risk":     { bg:"#fdebd8", text:"#b85c1a", dot:"#b85c1a" },
-  "Pending":     { bg:"#ebebeb", text:"#777",    dot:"#777"    },
+  "✓ Target Met":{ bg:"#e8f5f0", text:"#0e7a5a", dot:"#0e7a5a" },
+  "On Track":    { bg:"#e8f0fa", text:"#1a5fb4", dot:"#1a5fb4" },
+  "At Risk":     { bg:"#fdf0e8", text:"#c0480a", dot:"#c0480a" },
+  "Pending":     { bg:"#eef0f4", text:"#5a6478", dot:"#5a6478" },
 };
 
 const SECTOR_CLR = {
-  "Construction & Manufacturing":      "#6b8c73",
-  "Real Estate & Property Management": "#8c7b6b",
-  "Human Capital Development":         "#6b6b8c",
-  "Maritime Logistics":                "#5f8a8c",
+  "Construction & Manufacturing":      "#2e6da4",
+  "Real Estate & Property Management": "#1a7a6e",
+  "Human Capital Development":         "#5c4db1",
+  "Maritime Logistics":                "#0e7490",
 };
 
 const ROLES = {
@@ -95,7 +95,7 @@ const ROLES = {
   "admin@pgb.com": { password:"admin2026", role:"Admin", label:"Administrator" },
 };
 
-const C = { bg:"#f0eeeb",surface:"#faf9f7",card:"#ffffff",border:"#dcd9d4",text:"#2e2e2e",muted:"#888480",accent:"#5a7a62" };
+const C = { bg:"#e8edf5", surface:"#dce4f0", card:"#ffffff", border:"#b8c5d9", text:"#0a1628", muted:"#2d4a6e", accent:"#1a3f7a" };
 
 // ══════════════════════════════════════════════════════════════════════════════
 export default function App() {
@@ -213,17 +213,17 @@ function Sidebar({page,setPage,user,syncStatus,lastSync,onRefresh,onLogout}) {
     <nav style={S.sidebar}>
       <div>
         <div style={{padding:"0 24px 4px",display:"flex",flexDirection:"column"}}>
-          <span style={{fontSize:22,fontWeight:900,letterSpacing:5,color:C.text}}>PGB</span>
-          <span style={{fontSize:9,color:C.muted,letterSpacing:2,textTransform:"uppercase"}}>EOS Dashboard</span>
+          <span style={{fontSize:22,fontWeight:900,letterSpacing:5,color:"#e2eaf5"}}>PGB</span>
+          <span style={{fontSize:9,color:"#4a7096",letterSpacing:2,textTransform:"uppercase"}}>EOS Dashboard</span>
         </div>
-        <div style={{padding:"4px 24px 8px",fontSize:11,color:C.accent,letterSpacing:2}}>Q1 · YTD 2026</div>
+        <div style={{padding:"4px 24px 8px",fontSize:11,color:"#4a8fd4",letterSpacing:2}}>Q1 · YTD 2026</div>
         <div style={{display:"flex",alignItems:"center",gap:6,padding:"2px 24px 12px"}}>
           <span style={{width:7,height:7,borderRadius:"50%",background:dotClr,flexShrink:0,display:"inline-block"}}/>
-          <span style={{fontSize:10,color:C.muted}}>{dotLbl}</span>
-          {lastSync&&<span style={{fontSize:9,color:"#bbb",marginLeft:"auto"}}>{lastSync.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}</span>}
-          <button onClick={onRefresh} title="Refresh" style={{background:"none",border:"none",cursor:"pointer",color:C.muted,fontSize:13,padding:"0 0 0 4px"}}>↻</button>
+          <span style={{fontSize:10,color:"#4a7096"}}>{dotLbl}</span>
+          {lastSync&&<span style={{fontSize:9,color:"#2d4a6e",marginLeft:"auto"}}>{lastSync.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}</span>}
+          <button onClick={onRefresh} title="Refresh" style={{background:"none",border:"none",cursor:"pointer",color:"#4a7096",fontSize:13,padding:"0 0 0 4px"}}>↻</button>
         </div>
-        <div style={{height:1,background:C.border,margin:"0 24px 16px"}}/>
+        <div style={{height:1,background:"#1a2e4a",margin:"0 24px 16px"}}/>
         {nav.map(n=>(
           <button key={n.id} style={{...S.navBtn,...(page===n.id?S.navBtnActive:{})}} onClick={()=>setPage(n.id)}>
             <span style={{fontSize:16,width:20}}>{n.icon}</span><span>{n.label}</span>
@@ -231,10 +231,10 @@ function Sidebar({page,setPage,user,syncStatus,lastSync,onRefresh,onLogout}) {
         ))}
       </div>
       <div style={{padding:"0 24px"}}>
-        <div style={{fontSize:11,fontWeight:700,letterSpacing:1,textTransform:"uppercase",marginBottom:2,color:user.role==="Admin"?"#8c5a2a":user.role==="Owner"?C.accent:C.muted}}>
-          {user.label}{user.role==="Admin"&&<span style={{marginLeft:8,background:"#8c5a2a",color:"#fff",fontSize:9,padding:"2px 6px",borderRadius:3,fontWeight:700}}>ADMIN</span>}
+        <div style={{fontSize:11,fontWeight:700,letterSpacing:1,textTransform:"uppercase",marginBottom:2,color:user.role==="Admin"?"#f59e0b":user.role==="Owner"?"#4a8fd4":"#4a7096"}}>
+          {user.label}{user.role==="Admin"&&<span style={{marginLeft:8,background:"#f59e0b",color:"#0a1628",fontSize:9,padding:"2px 6px",borderRadius:3,fontWeight:700}}>ADMIN</span>}
         </div>
-        <div style={{fontSize:10,color:C.muted,marginBottom:12}}>{user.email}</div>
+        <div style={{fontSize:10,color:"#2d4a6e",marginBottom:12}}>{user.email}</div>
         <button style={S.btnGhost} onClick={onLogout}>Sign Out</button>
       </div>
     </nav>
@@ -254,10 +254,10 @@ function OverviewPage({revenue,activeSector,setActiveSector,isOwner,onEditRev}) 
     <div style={S.page}>
       <PH title="Revenue Overview" sub="Business Unit & Sector Performance · Q1 and YTD 2026"/>
       <div style={S.strip}>
-        <KPI label="Annual Target" val={fmt(tAnnual)} sub="FY 2026"                                     clr="#888480"/>
-        <KPI label="Q1 Target"     val={fmt(tQ1T)}    sub="Jan – Mar 2026"                              clr="#5a7a62"/>
-        <KPI label="Q1 Actual"     val={fmt(tQ1A)}    sub={`${pct(tQ1A,tQ1T)}% of Q1 target`}          clr="#1e6e8c"/>
-        <KPI label="YTD Actual"    val={fmt(tYTD)}    sub={`${pct(tYTD,tAnnual)}% of annual`}           clr="#b85c1a"/>
+        <KPI label="Annual Target" val={fmt(tAnnual)} sub="FY 2026"                                     clr="#64748b"/>
+        <KPI label="Q1 Target"     val={fmt(tQ1T)}    sub="Jan – Mar 2026"                              clr="#2563eb"/>
+        <KPI label="Q1 Actual"     val={fmt(tQ1A)}    sub={`${pct(tQ1A,tQ1T)}% of Q1 target`}          clr="#0e7490"/>
+        <KPI label="YTD Actual"    val={fmt(tYTD)}    sub={`${pct(tYTD,tAnnual)}% of annual`}           clr="#c0480a"/>
       </div>
       <div style={S.filterRow}>
         {["All",...SECTORS].map(s=>(
@@ -286,9 +286,9 @@ function OverviewPage({revenue,activeSector,setActiveSector,isOwner,onEditRev}) 
               <td style={S.td}>{fmt(r.annual_target||0)}</td>
               <td style={S.td}>{fmt(r.q1_target||0)}</td>
               <td style={S.td}>{fmt(r.q1_actual||0)}</td>
-              <td style={S.td}><MBar pct={q1p}  clr={q1p >=100?"#2a7a50":q1p >=75?"#1e6e8c":"#b85c1a"}/></td>
+              <td style={S.td}><MBar pct={q1p}  clr={q1p >=100?"#0e7a5a":q1p >=75?"#1a5fb4":"#c0480a"}/></td>
               <td style={S.td}>{fmt(r.ytd_actual||0)}</td>
-              <td style={S.td}><MBar pct={ytdp} clr={ytdp>=100?"#2a7a50":ytdp>=75?"#1e6e8c":"#b85c1a"}/></td>
+              <td style={S.td}><MBar pct={ytdp} clr={ytdp>=100?"#0e7a5a":ytdp>=75?"#1a5fb4":"#c0480a"}/></td>
               {isOwner&&<td style={S.td}><button style={S.editBtn} onClick={()=>onEditRev(r)}>Edit</button></td>}
             </tr>;
           })}</tbody>
@@ -330,11 +330,11 @@ function RocksPage({rocks,isOwner,onSave,onDelete,modal,setModal}) {
     <div style={S.page}>
       <PH title="Rocks Tracker" sub="Strategic Initiatives Progress · Q1 2026"/>
       <div style={S.strip}>
-        <KPI label="Total Rocks"       val={n}        sub="across all BUs"                            clr="#888480"/>
-        <KPI label="Target Met"        val={met}      sub={`${n?Math.round(met/n*100):0}% complete`}  clr="#2a7a50"/>
-        <KPI label="On Track"          val={onT}      sub="progressing well"                          clr="#1e6e8c"/>
-        <KPI label="At Risk / Pending" val={atR+pend} sub="needs attention"                           clr="#b85c1a"/>
-        <KPI label="Avg Progress"      val={`${avg}%`} sub="all initiatives"                          clr="#5a7a62"/>
+        <KPI label="Total Rocks"       val={n}        sub="across all BUs"                            clr="#64748b"/>
+        <KPI label="Target Met"        val={met}      sub={`${n?Math.round(met/n*100):0}% complete`}  clr="#0e7a5a"/>
+        <KPI label="On Track"          val={onT}      sub="progressing well"                          clr="#1a5fb4"/>
+        <KPI label="At Risk / Pending" val={atR+pend} sub="needs attention"                           clr="#c0480a"/>
+        <KPI label="Avg Progress"      val={`${avg}%`} sub="all initiatives"                          clr="#2563eb"/>
       </div>
       <div style={{...S.filterRow,justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
         <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
@@ -346,7 +346,7 @@ function RocksPage({rocks,isOwner,onSave,onDelete,modal,setModal}) {
       {Object.entries(grouped).map(([bu,rows])=>(
         <div key={bu} style={S.buGroup}>
           <div style={S.buGroupHdr}>
-            <span style={S.buTag}>{bu}</span>
+            <span style={{...S.buTag,fontSize:12,padding:"3px 10px"}}>{bu}</span>
             <span style={{fontSize:11,color:C.muted,flex:1}}>{rows[0].sector}</span>
             <span style={{fontSize:11,color:C.muted}}>{rows.length} rocks</span>
           </div>
@@ -360,7 +360,7 @@ function RocksPage({rocks,isOwner,onSave,onDelete,modal,setModal}) {
 
 function RockRow({rock,isOwner,onEdit,onDelete}) {
   const cfg=STATUS_CFG[rock.status]||STATUS_CFG["Pending"], p=rock.progress||0;
-  const pc=p>=100?"#2a7a50":p>=70?"#1e6e8c":p>=40?"#b85c1a":"#c0392b";
+  const pc=p>=100?"#0e7a5a":p>=70?"#1a5fb4":p>=40?"#c0480a":"#dc2626";
   return (
     <div style={{display:"flex",alignItems:"flex-start",gap:20,padding:"14px 18px",borderBottom:`1px solid rgba(0,0,0,0.06)`}}>
       <div style={{flex:1}}>
@@ -368,7 +368,7 @@ function RockRow({rock,isOwner,onEdit,onDelete}) {
         <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
           <span style={{fontSize:11,color:C.muted}}>Owner: {rock.owner}</span>
           <span style={{fontSize:11,color:C.muted}}>Target: {rock.target}</span>
-          {rock.notes&&<span style={{fontSize:11,color:"#7a8c6a",fontStyle:"italic"}}>{rock.notes}</span>}
+          {rock.notes&&<span style={{fontSize:11,color:"#334155",fontStyle:"italic"}}>{rock.notes}</span>}
         </div>
       </div>
       <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:8,minWidth:240}}>
@@ -381,7 +381,7 @@ function RockRow({rock,isOwner,onEdit,onDelete}) {
             <div style={{height:"100%",borderRadius:3,width:`${Math.min(p,100)}%`,background:pc,transition:"width 0.4s"}}/>
             <div style={{position:"absolute",left:0,top:0,height:"100%",width:2,background:"rgba(0,0,0,0.2)"}}/>
           </div>
-          <div style={{display:"flex",justifyContent:"space-between",fontSize:9,color:"#aaa",marginTop:2}}><span>0%</span><span>Target: {rock.target}</span></div>
+          <div style={{display:"flex",justifyContent:"space-between",fontSize:9,color:"#64748b",marginTop:2}}><span>0%</span><span>Target: {rock.target}</span></div>
         </div>
         <span style={{display:"inline-flex",alignItems:"center",gap:5,padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:600,background:cfg.bg,color:cfg.text}}>
           <span style={{width:6,height:6,borderRadius:"50%",background:cfg.dot}}/>{rock.status}
@@ -449,9 +449,9 @@ function ScorecardPage({rocks,revenue}) {
           <div style={{display:"flex",alignItems:"center",gap:20,marginBottom:12}}>
             <Donut met={met} onT={onT} atR={atR} pend={pend} n={n}/>
             <div>
-              {[["#2a7a50","Target Met",met],["#1e6e8c","On Track",onT],["#b85c1a","At Risk",atR],["#aaa","Pending",pend]].map(([c,l,v])=>(
+              {[["#0e7a5a","Target Met",met],["#1a5fb4","On Track",onT],["#c0480a","At Risk",atR],["#64748b","Pending",pend]].map(([c,l,v])=>(
                 <div key={l} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-                  <div style={{width:10,height:10,borderRadius:"50%",background:c}}/><span style={{fontSize:12,color:C.muted}}>{l}</span><span style={{fontSize:12,fontWeight:700,marginLeft:"auto"}}>{v}</span>
+                  <div style={{width:10,height:10,borderRadius:"50%",background:c}}/><span style={{fontSize:12,color:"#334155"}}>{l}</span><span style={{fontSize:12,fontWeight:700,color:"#0f1c2e",marginLeft:"auto"}}>{v}</span>
                 </div>
               ))}
             </div>
@@ -461,12 +461,12 @@ function ScorecardPage({rocks,revenue}) {
             <div style={{fontSize:10,color:C.muted,textTransform:"uppercase",letterSpacing:1.5,marginBottom:10}}>Rocks Detail</div>
             {sR.map(r=>{
               const cfg=STATUS_CFG[r.status]||STATUS_CFG["Pending"], p=r.progress||0;
-              const pc=p>=100?"#2a7a50":p>=70?"#1e6e8c":p>=40?"#b85c1a":"#c0392b";
+              const pc=p>=100?"#0e7a5a":p>=70?"#1a5fb4":p>=40?"#c0480a":"#dc2626";
               return (
                 <div key={r.id} style={{display:"flex",alignItems:"center",gap:10,marginBottom:10,flexWrap:"wrap"}}>
                   <div style={{flex:1,minWidth:150}}>
-                    <span style={{fontSize:10,fontWeight:700,color:C.accent,marginRight:6}}>{r.bu}</span>
-                    <span style={{fontSize:11,color:C.muted}}>{r.initiative}</span>
+                    <span style={{fontSize:10,fontWeight:700,color:"#1d4ed8",marginRight:6}}>{r.bu}</span>
+                    <span style={{fontSize:11,color:"#334155"}}>{r.initiative}</span>
                   </div>
                   <div style={{minWidth:180}}>
                     <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
@@ -529,10 +529,10 @@ function RevModal({data,onSave,onClose}) {
 }
 
 function Overlay({children,onClose}) {
-  return <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.25)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:100}} onClick={onClose}><div style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:10,padding:28,width:440,maxHeight:"90vh",overflowY:"auto",boxShadow:"0 8px 40px rgba(0,0,0,0.12)"}} onClick={e=>e.stopPropagation()}>{children}</div></div>;
+  return <div style={{position:"fixed",inset:0,background:"rgba(15,28,46,0.5)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:100}} onClick={onClose}><div style={{background:"#ffffff",border:`1px solid ${C.border}`,borderRadius:10,padding:28,width:440,maxHeight:"90vh",overflowY:"auto",boxShadow:"0 20px 60px rgba(15,28,46,0.2)"}} onClick={e=>e.stopPropagation()}>{children}</div></div>;
 }
 function MF({label,children}) {
-  return <div style={{marginBottom:12}}><div style={{fontSize:11,color:C.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:5}}>{label}</div>{children}</div>;
+  return <div style={{marginBottom:12}}><div style={{fontSize:11,color:"#334155",textTransform:"uppercase",letterSpacing:1,marginBottom:5,fontWeight:600}}>{label}</div>{children}</div>;
 }
 
 // ─── SHARED ATOMS ─────────────────────────────────────────────────────────────
@@ -541,10 +541,10 @@ function PH({title,sub}) {
 }
 function KPI({label,val,sub,clr}) {
   return (
-    <div style={{flex:"1 1 150px",background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:"16px 18px",borderTop:`3px solid ${clr}`,minWidth:130,boxShadow:"0 1px 4px rgba(0,0,0,0.04)"}}>
-      <div style={{fontSize:10,color:C.muted,textTransform:"uppercase",letterSpacing:1.5,marginBottom:8}}>{label}</div>
+    <div style={{flex:"1 1 150px",background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:"16px 18px",borderTop:`3px solid ${clr}`,minWidth:130,boxShadow:"0 2px 8px rgba(15,28,46,0.08)"}}>
+      <div style={{fontSize:10,color:"#475569",textTransform:"uppercase",letterSpacing:1.5,marginBottom:8,fontWeight:600}}>{label}</div>
       <div style={{fontSize:22,fontWeight:700,color:clr,lineHeight:1}}>{val}</div>
-      <div style={{fontSize:11,color:C.muted,marginTop:4}}>{sub}</div>
+      <div style={{fontSize:11,color:"#334155",marginTop:4}}>{sub}</div>
     </div>
   );
 }
@@ -565,17 +565,17 @@ function MBar({pct:p,clr}) {
   return <div style={{display:"flex",alignItems:"center",gap:8}}><div style={{height:4,borderRadius:2,width:`${Math.min(p,100)}%`,background:clr,flex:1,maxWidth:80}}/><span style={{fontSize:11,fontWeight:700,minWidth:36,textAlign:"right",color:clr}}>{p}%</span></div>;
 }
 function MP({label,val,hi}) {
-  return <div style={{display:"flex",flexDirection:"column",gap:2}}><span style={{fontSize:10,color:"#aaa",textTransform:"uppercase",letterSpacing:1}}>{label}</span><span style={{fontSize:15,fontWeight:700,color:hi?"#2e2e2e":"#888480"}}>{val}</span></div>;
+  return <div style={{display:"flex",flexDirection:"column",gap:2}}><span style={{fontSize:10,color:"#64748b",textTransform:"uppercase",letterSpacing:1}}>{label}</span><span style={{fontSize:15,fontWeight:700,color:hi?"#0f1c2e":"#334155"}}>{val}</span></div>;
 }
 function Donut({met,onT,atR,pend,n}) {
   if(!n) return null;
-  const segs=[{v:met,c:"#2a7a50"},{v:onT,c:"#1e6e8c"},{v:atR,c:"#b85c1a"},{v:pend,c:"#aaa"}];
+  const segs=[{v:met,c:"#0e7a5a"},{v:onT,c:"#1a5fb4"},{v:atR,c:"#c0480a"},{v:pend,c:"#94a3b8"}];
   const r=40,circ=2*Math.PI*r; let off=0;
   return (
     <svg width="110" height="110" viewBox="0 0 100 100">
       {segs.map((sg,i)=>{const dash=(sg.v/n)*circ;const el=<circle key={i} cx={50} cy={50} r={r} fill="none" stroke={sg.c} strokeWidth="14" strokeDasharray={`${dash} ${circ-dash}`} strokeDashoffset={-off+circ*0.25} style={{transform:"rotate(-90deg)",transformOrigin:"50px 50px"}}/>;off+=dash;return el;})}
-      <text x="50" y="46" textAnchor="middle" fill="#2e2e2e" fontSize="14" fontWeight="700">{Math.round(((met+onT)/n)*100)}%</text>
-      <text x="50" y="58" textAnchor="middle" fill="#888480" fontSize="8">on/met</text>
+      <text x="50" y="46" textAnchor="middle" fill="#0f1c2e" fontSize="14" fontWeight="700">{Math.round(((met+onT)/n)*100)}%</text>
+      <text x="50" y="58" textAnchor="middle" fill="#475569" fontSize="8">on/met</text>
     </svg>
   );
 }
@@ -584,32 +584,32 @@ function Donut({met,onT,atR,pend,n}) {
 const S = {
   shell:    { display:"flex",height:"100vh",background:C.bg,fontFamily:"'DM Mono','Courier New',monospace",color:C.text,overflow:"hidden" },
   main:     { flex:1,overflow:"auto",padding:"32px 40px" },
-  loginWrap:{ display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",background:C.bg,fontFamily:"'DM Mono','Courier New',monospace" },
-  loginCard:{ background:C.surface,border:`1px solid ${C.border}`,borderRadius:12,padding:"48px 40px",width:360,display:"flex",flexDirection:"column",gap:14,boxShadow:"0 4px 24px rgba(0,0,0,0.08)" },
-  loginLogo:{ fontSize:36,fontWeight:900,color:C.text,letterSpacing:6 },
-  loginSub: { fontSize:12,color:C.muted,letterSpacing:2,textTransform:"uppercase" },
-  sidebar:  { width:230,background:C.surface,borderRight:`1px solid ${C.border}`,display:"flex",flexDirection:"column",justifyContent:"space-between",padding:"28px 0" },
-  navBtn:   { display:"flex",alignItems:"center",gap:10,width:"100%",padding:"12px 24px",border:"none",background:"none",color:C.muted,fontSize:12,cursor:"pointer",textAlign:"left",letterSpacing:0.5 },
-  navBtnActive:{ background:"rgba(90,122,98,0.1)",color:C.text,borderLeft:`2px solid ${C.accent}` },
+  loginWrap:{ display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",background:"linear-gradient(135deg,#0a1628 0%,#1a3f7a 100%)",fontFamily:"'DM Mono','Courier New',monospace" },
+  loginCard:{ background:"#ffffff",border:`1px solid #b8c5d9`,borderRadius:12,padding:"48px 40px",width:360,display:"flex",flexDirection:"column",gap:14,boxShadow:"0 20px 60px rgba(10,22,40,0.4)" },
+  loginLogo:{ fontSize:36,fontWeight:900,color:"#0a1628",letterSpacing:6 },
+  loginSub: { fontSize:12,color:"#2d4a6e",letterSpacing:2,textTransform:"uppercase" },
+  sidebar:  { width:230,background:"#0a1628",borderRight:`1px solid #1a2e4a`,display:"flex",flexDirection:"column",justifyContent:"space-between",padding:"28px 0" },
+  navBtn:   { display:"flex",alignItems:"center",gap:10,width:"100%",padding:"12px 24px",border:"none",background:"none",color:"#7a9cc0",fontSize:12,cursor:"pointer",textAlign:"left",letterSpacing:0.5 },
+  navBtnActive:{ background:"rgba(26,63,122,0.3)",color:"#e2eaf5",borderLeft:`2px solid #4a8fd4` },
   page:     { maxWidth:1200 },
   strip:    { display:"flex",gap:14,marginBottom:24,flexWrap:"wrap" },
   filterRow:{ display:"flex",gap:8,marginBottom:20,flexWrap:"wrap" },
   filterBtn:{ background:"none",border:`1px solid ${C.border}`,color:C.muted,fontSize:11,padding:"6px 14px",cursor:"pointer",borderRadius:4,letterSpacing:0.5 },
-  filterBtnActive:{ background:"rgba(90,122,98,0.1)",color:C.text,borderColor:C.accent },
+  filterBtnActive:{ background:"rgba(26,63,122,0.1)",color:"#1a3f7a",borderColor:"#1a3f7a" },
   select:   { background:C.card,border:`1px solid ${C.border}`,color:C.text,padding:"7px 12px",fontSize:12,borderRadius:4,cursor:"pointer" },
   sectorGrid:{ display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:14,marginBottom:24 },
-  sectorCard:{ background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:18,boxShadow:"0 1px 4px rgba(0,0,0,0.04)" },
-  card:     { background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:"20px 0",marginBottom:24,boxShadow:"0 1px 4px rgba(0,0,0,0.04)" },
+  sectorCard:{ background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:18,boxShadow:"0 2px 8px rgba(15,28,46,0.08)" },
+  card:     { background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:"20px 0",marginBottom:24,boxShadow:"0 2px 8px rgba(15,28,46,0.08)" },
   cardTitle:{ fontSize:13,fontWeight:700,color:C.text,letterSpacing:1,textTransform:"uppercase",padding:"0 20px 16px",borderBottom:`1px solid ${C.border}` },
-  th:       { padding:"10px 14px",color:C.muted,fontWeight:600,textTransform:"uppercase",fontSize:10,letterSpacing:1,textAlign:"center" },
-  td:       { padding:"12px 14px",textAlign:"center",color:C.muted,borderBottom:`1px solid rgba(0,0,0,0.05)` },
-  buTag:    { background:"rgba(90,122,98,0.12)",color:C.accent,padding:"3px 8px",borderRadius:4,fontSize:11,fontWeight:700,whiteSpace:"nowrap" },
-  buGroup:  { background:C.card,border:`1px solid ${C.border}`,borderRadius:8,marginBottom:16,overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,0.04)" },
-  buGroupHdr:{ display:"flex",alignItems:"center",gap:12,padding:"12px 18px",background:C.surface,borderBottom:`1px solid ${C.border}` },
-  panel:    { background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:20,boxShadow:"0 1px 4px rgba(0,0,0,0.04)" },
-  panelTitle:{ fontSize:11,fontWeight:700,color:C.muted,textTransform:"uppercase",letterSpacing:2,marginBottom:16,borderBottom:`1px solid ${C.border}`,paddingBottom:10 },
-  btnPrimary:{ background:C.accent,color:"#fff",border:"none",padding:"9px 18px",borderRadius:5,cursor:"pointer",fontSize:12,fontWeight:700,letterSpacing:0.5 },
-  btnGhost: { background:"none",color:C.muted,border:`1px solid ${C.border}`,padding:"9px 18px",borderRadius:5,cursor:"pointer",fontSize:12,letterSpacing:0.5 },
+  th:       { padding:"10px 14px",color:"#475569",fontWeight:600,textTransform:"uppercase",fontSize:10,letterSpacing:1,textAlign:"center" },
+  td:       { padding:"12px 14px",textAlign:"center",color:C.muted,borderBottom:`1px solid rgba(15,28,46,0.06)` },
+  buTag:    { background:"rgba(26,63,122,0.12)",color:"#1a3f7a",padding:"3px 8px",borderRadius:4,fontSize:11,fontWeight:700,whiteSpace:"nowrap" },
+  buGroup:  { background:C.card,border:`1px solid ${C.border}`,borderRadius:8,marginBottom:16,overflow:"hidden",boxShadow:"0 2px 8px rgba(15,28,46,0.08)" },
+  buGroupHdr:{ display:"flex",alignItems:"center",gap:12,padding:"12px 18px",background:"#f1f5f9",borderBottom:`1px solid ${C.border}` },
+  panel:    { background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:20,boxShadow:"0 2px 8px rgba(15,28,46,0.08)" },
+  panelTitle:{ fontSize:11,fontWeight:700,color:"#475569",textTransform:"uppercase",letterSpacing:2,marginBottom:16,borderBottom:`1px solid ${C.border}`,paddingBottom:10 },
+  btnPrimary:{ background:"#1a3f7a",color:"#fff",border:"none",padding:"9px 18px",borderRadius:5,cursor:"pointer",fontSize:12,fontWeight:700,letterSpacing:0.5 },
+  btnGhost: { background:"none",color:"#7a9cc0",border:`1px solid #1a2e4a`,padding:"9px 18px",borderRadius:5,cursor:"pointer",fontSize:12,letterSpacing:0.5 },
   editBtn:  { background:"none",border:`1px solid ${C.border}`,color:C.muted,fontSize:11,padding:"4px 10px",cursor:"pointer",borderRadius:4 },
   input:    { background:C.card,border:`1px solid ${C.border}`,color:C.text,padding:"10px 14px",borderRadius:5,fontSize:13,width:"100%",boxSizing:"border-box",outline:"none",fontFamily:"inherit" },
   modalInput:{ background:C.card,border:`1px solid ${C.border}`,color:C.text,padding:"9px 12px",borderRadius:5,fontSize:13,width:"100%",boxSizing:"border-box",fontFamily:"inherit" },
