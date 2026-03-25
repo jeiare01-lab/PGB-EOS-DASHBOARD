@@ -501,7 +501,7 @@ function ScorecardPage({rocks,revenue}) {
       <div style={S.filterRow}>
         {SECTORS.map(s=>(
           <button key={s} style={{...S.filterBtn,...(sec===s?{...S.filterBtnActive,borderColor:SECTOR_CLR[s]}:{})}} onClick={()=>setSec(s)}>
-            {s.split(" ")[0]}
+            {s==="Construction & Manufacturing"?"Construction":s==="Real Estate & Property Management"?"Real Estate":s==="Human Capital Development"?"Human Capital":s==="Maritime Logistics"?"Maritime":""}
           </button>
         ))}
       </div>
