@@ -343,7 +343,7 @@ function OverviewPage({revenue,activeSector,setActiveSector,isOwner,onEditRev}) 
       <div style={S.filterRow}>
         {["All",...SECTORS].map(s=>(
           <button key={s} style={{...S.filterBtn,...(activeSector===s?S.filterBtnActive:{})}} onClick={()=>setActiveSector(s)}>
-            {s==="All"?"All BUs":s.split(" ").slice(0,2).join(" ")}
+            {s==="All"?"All BUs":s==="Construction & Manufacturing"?"Construction":s==="Real Estate & Property Management"?"Real Estate":s==="Human Capital Development"?"Human Capital":s==="Maritime Logistics"?"Maritime":s}
           </button>
         ))}
       </div>
