@@ -145,10 +145,11 @@ export default function App() {
   // ── Write helpers ──────────────────────────────────────────────────────────
   const saveRevenue = async (row) => {
     try {
+      const { id, ...fields } = row;
       await sbFetch("revenue", {
         method: "PATCH",
-        body: row,
-        query: `?id=eq.${row.id}`,
+        body: fields,
+        query: `?id=eq.${id}`,
       });
       setRevenue(prev => prev.map(r=>r.id===row.id?row:r));
       setLastSync(new Date()); setSyncStatus("live");
