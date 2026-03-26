@@ -115,7 +115,20 @@ export default function App() {
   const pollRef = useRef(null);
 
   const isAdmin = user?.role==="Admin";
-  const isOwner = user?.role==="BI"||isAdmin;  // BI gets process owner access; Admin gets full access
+  const isOwner = user?.role==="BI"||isAdmin;
+
+  // ── Audit Log helper ───────────────────────────────────────────────────────
+  const writeAudit = async (action, tableName, recordId, fieldChanged, oldValue, newValue) => {
+    try {
+      await db.upsert("audit_log", {
+        action, table_name: tableName, record_id: String(recordId),
+        field_changed: fieldChanged,
+        old_value: String(oldValue ?? ""), new_value: String(newValue ?? ""),
+        changed_by: user?.email, changed_by_role: user?.role,
+        changed_at: new Date().toISOString(),
+      });
+    } catch(e) { console.warn("Audit log failed:", e.message); }
+  };
 
   // ── Poll Supabase every 15s for live updates ───────────────────────────────
   const fetchAll = useCallback(async () => {
@@ -157,9 +170,18 @@ export default function App() {
         q4_target: Math.round(Number(fields.q4_target)||0),
         q4_actual: Math.round(Number(fields.q4_actual)||0),
       };
+      // Find old values for audit
+      const old = revenue.find(r=>r.id===row.id)||{};
       await sbFetch("revenue", { method:"PATCH", body:clean, query:`?id=eq.${id}` });
       setRevenue(prev => prev.map(r=>r.id===row.id?{...row,...clean}:r));
       setLastSync(new Date()); setSyncStatus("live");
+      // Write audit entries for changed fields
+      const auditFields = ["annual_target","q1_target","q1_actual","q2_target","q2_actual","q3_target","q3_actual","q4_target","q4_actual","company","full_name","sector"];
+      for (const f of auditFields) {
+        if (clean[f] !== undefined && String(clean[f]) !== String(old[f]??'')) {
+          await writeAudit("UPDATE", "revenue", id, f, old[f]??'', clean[f]);
+        }
+      }
     } catch(e) { alert("Save failed: "+e.message); }
   };
 
@@ -167,11 +189,19 @@ export default function App() {
     const isNew = !rock.id;
     const payload = isNew ? {...rock, id:`r${Date.now()}`} : rock;
     try {
+      const old = rocks.find(r=>r.id===rock.id)||{};
       if (isNew) {
         await db.upsert("rocks", payload);
+        await writeAudit("CREATE", "rocks", payload.id, "initiative", "", payload.initiative);
       } else {
         const { id, updated_at, ...fields } = payload;
         await sbFetch("rocks", { method:"PATCH", body:fields, query:`?id=eq.${id}` });
+        const auditFields = ["initiative","owner","target","progress","status","notes","bu","sector"];
+        for (const f of auditFields) {
+          if (fields[f] !== undefined && String(fields[f]) !== String(old[f]??'')) {
+            await writeAudit("UPDATE", "rocks", id, f, old[f]??'', fields[f]);
+          }
+        }
       }
       setRocks(prev => isNew ? [...prev,payload] : prev.map(r=>r.id===payload.id?payload:r));
       setLastSync(new Date()); setSyncStatus("live");
@@ -180,8 +210,10 @@ export default function App() {
 
   const deleteRock = async (id) => {
     try {
+      const rock = rocks.find(r=>r.id===id);
       await db.remove("rocks", id);
       setRocks(prev => prev.filter(r=>r.id!==id));
+      await writeAudit("DELETE", "rocks", id, "initiative", rock?.initiative??'', "");
     } catch(e) { alert("Delete failed: "+e.message); }
   };
 
@@ -200,6 +232,7 @@ export default function App() {
         {page==="overview"  && <OverviewPage  revenue={revenue}  activeSector={activeSector} setActiveSector={setActiveSector} isOwner={isOwner} onEditRev={r=>setRevModal(r)}/>}
         {page==="rocks"     && <RocksPage     rocks={rocks}      isOwner={isOwner} onSave={saveRock} onDelete={deleteRock} modal={rockModal} setModal={setRockModal}/>}
         {page==="scorecard" && <ScorecardPage rocks={rocks}      revenue={revenue}/>}
+        {page==="audit"     && <AuditPage     isAdmin={isAdmin}/>}
       </main>
       {revModal&&isOwner&&<RevModal data={revModal} isAdmin={isAdmin} onSave={async u=>{await saveRevenue(u);setRevModal(null);}} onClose={()=>setRevModal(null)}/>}
     </div>
@@ -225,7 +258,12 @@ function Login({email,setEmail,pass,setPass,err,onLogin}) {
 
 // ─── SIDEBAR ──────────────────────────────────────────────────────────────────
 function Sidebar({page,setPage,user,syncStatus,lastSync,onRefresh,onLogout}) {
-  const nav=[{id:"overview",label:"Revenue Overview",icon:"▣"},{id:"rocks",label:"Rocks Tracker",icon:"◈"},{id:"scorecard",label:"Sector Scorecard",icon:"◉"}];
+  const nav=[
+    {id:"overview",  label:"Revenue Overview", icon:"▣"},
+    {id:"rocks",     label:"Rocks Tracker",    icon:"◈"},
+    {id:"scorecard", label:"Sector Scorecard",  icon:"◉"},
+    ...(user?.role==="Admin"?[{id:"audit", label:"Audit Log", icon:"◎"}]:[]),
+  ];
   const dotClr={idle:"#ccc",syncing:"#f2c94c",live:"#2a7a50",error:"#b85c1a"}[syncStatus];
   const dotLbl={idle:"Not connected",syncing:"Syncing…",live:"Live · Supabase",error:"Offline data"}[syncStatus];
   return (
@@ -651,6 +689,130 @@ function Overlay({children,onClose}) {
 }
 function MF({label,children}) {
   return <div style={{marginBottom:12}}><div style={{fontSize:11,color:"#334155",textTransform:"uppercase",letterSpacing:1,marginBottom:5,fontWeight:600}}>{label}</div>{children}</div>;
+}
+
+// ─── AUDIT LOG PAGE ───────────────────────────────────────────────────────────
+function AuditPage({isAdmin}) {
+  const [logs,setLogs]         = useState([]);
+  const [loading,setLoading]   = useState(true);
+  const [filterTable,setFilterTable] = useState("All");
+  const [filterAction,setFilterAction] = useState("All");
+  const [filterUser,setFilterUser] = useState("All");
+
+  useEffect(()=>{
+    const fetch = async()=>{
+      setLoading(true);
+      try {
+        const data = await sbFetch("audit_log",{ query:"?order=changed_at.desc&limit=200" });
+        setLogs(data||[]);
+      } catch(e){ console.warn(e); }
+      setLoading(false);
+    };
+    fetch();
+  },[]);
+
+  const allUsers   = ["All",...Array.from(new Set(logs.map(l=>l.changed_by)))];
+  const allTables  = ["All","revenue","rocks"];
+  const allActions = ["All","CREATE","UPDATE","DELETE"];
+
+  const filtered = logs.filter(l=>{
+    if(filterTable!=="All"  && l.table_name!==filterTable)   return false;
+    if(filterAction!=="All" && l.action!==filterAction)      return false;
+    if(filterUser!=="All"   && l.changed_by!==filterUser)    return false;
+    return true;
+  });
+
+  const actionColor = a => a==="CREATE"?"#0e7a5a":a==="DELETE"?"#c0480a":"#1a3f7a";
+  const actionBg    = a => a==="CREATE"?"#e8f5f0":a==="DELETE"?"#fdf0e8":"#e8edf5";
+
+  const formatField = f => f.replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase());
+  const formatVal   = v => {
+    if(v===""||v===null||v===undefined) return "—";
+    const n = Number(v);
+    if(!isNaN(n)&&v!==""&&n>1000) return `₱${n.toLocaleString()}`;
+    return v;
+  };
+
+  return (
+    <div style={S.page}>
+      <PH title="Audit Log" sub="Complete record of all data changes · Admin only"/>
+
+      {/* Stats strip */}
+      <div style={S.strip}>
+        <KPI label="Total Changes" val={logs.length}                                          sub="all time"       clr="#1a3f7a"/>
+        <KPI label="Created"       val={logs.filter(l=>l.action==="CREATE").length}           sub="new records"    clr="#0e7a5a"/>
+        <KPI label="Updated"       val={logs.filter(l=>l.action==="UPDATE").length}           sub="field edits"    clr="#0e7490"/>
+        <KPI label="Deleted"       val={logs.filter(l=>l.action==="DELETE").length}           sub="removed"        clr="#c0480a"/>
+      </div>
+
+      {/* Filters */}
+      <div style={{...S.filterRow,gap:8,marginBottom:20}}>
+        <select style={S.select} value={filterTable}  onChange={e=>setFilterTable(e.target.value)}>
+          {allTables.map(t=><option key={t}>{t==="All"?"All Tables":t}</option>)}
+        </select>
+        <select style={S.select} value={filterAction} onChange={e=>setFilterAction(e.target.value)}>
+          {allActions.map(a=><option key={a}>{a==="All"?"All Actions":a}</option>)}
+        </select>
+        <select style={S.select} value={filterUser}   onChange={e=>setFilterUser(e.target.value)}>
+          {allUsers.map(u=><option key={u}>{u==="All"?"All Users":u}</option>)}
+        </select>
+        <span style={{fontSize:11,color:C.muted,marginLeft:"auto",alignSelf:"center"}}>{filtered.length} entries</span>
+      </div>
+
+      {/* Table */}
+      <div style={S.card}>
+        <div style={S.cardTitle}>Change History</div>
+        {loading ? (
+          <div style={{padding:40,textAlign:"center",color:C.muted,fontSize:13}}>Loading audit log…</div>
+        ) : filtered.length===0 ? (
+          <div style={{padding:40,textAlign:"center",color:C.muted,fontSize:13}}>No entries found.</div>
+        ) : (
+          <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+            <thead><tr style={{background:C.surface}}>
+              <th style={S.th}>Date & Time</th>
+              <th style={S.th}>Action</th>
+              <th style={S.th}>Table</th>
+              <th style={S.th}>Record</th>
+              <th style={S.th}>Field</th>
+              <th style={{...S.th,textAlign:"left"}}>Old Value</th>
+              <th style={{...S.th,textAlign:"left"}}>New Value</th>
+              <th style={S.th}>Changed By</th>
+            </tr></thead>
+            <tbody>
+              {filtered.map((l,i)=>(
+                <tr key={l.id} style={{background:i%2?C.surface:"transparent"}}>
+                  <td style={{...S.td,whiteSpace:"nowrap",fontSize:11}}>
+                    {new Date(l.changed_at).toLocaleDateString("en-PH",{month:"short",day:"numeric",year:"numeric"})}<br/>
+                    <span style={{color:C.muted,fontSize:10}}>{new Date(l.changed_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}</span>
+                  </td>
+                  <td style={S.td}>
+                    <span style={{background:actionBg(l.action),color:actionColor(l.action),padding:"3px 8px",borderRadius:12,fontSize:11,fontWeight:700}}>
+                      {l.action}
+                    </span>
+                  </td>
+                  <td style={S.td}>
+                    <span style={{...S.buTag,fontSize:10}}>{l.table_name}</span>
+                  </td>
+                  <td style={{...S.td,fontSize:11,color:C.muted}}>{l.record_id}</td>
+                  <td style={{...S.td,fontSize:11,color:"#334155",fontWeight:500}}>{formatField(l.field_changed||"")}</td>
+                  <td style={{...S.td,textAlign:"left",fontSize:11,color:"#c0480a",maxWidth:160}}>
+                    <span style={{display:"inline-block",maxWidth:150,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{formatVal(l.old_value)}</span>
+                  </td>
+                  <td style={{...S.td,textAlign:"left",fontSize:11,color:"#0e7a5a",maxWidth:160}}>
+                    <span style={{display:"inline-block",maxWidth:150,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{formatVal(l.new_value)}</span>
+                  </td>
+                  <td style={S.td}>
+                    <div style={{fontSize:11,fontWeight:600,color:C.text}}>{l.changed_by?.split("@")[0]}</div>
+                    <div style={{fontSize:10,color:C.muted}}>{l.changed_by_role}</div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
 }
 
 // ─── SHARED ATOMS ─────────────────────────────────────────────────────────────
