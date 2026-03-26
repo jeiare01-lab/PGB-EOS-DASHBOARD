@@ -93,7 +93,6 @@ const SECTOR_CLR = {
 
 const ROLES = {
   "bi@pgb.com":    { password:"bi2026",    role:"BI",    label:"Business Integrator" },
-  "owner@pgb.com": { password:"owner2026", role:"Owner", label:"Process Owner" },
   "admin@pgb.com": { password:"admin2026", role:"Admin", label:"Administrator" },
 };
 
@@ -116,7 +115,7 @@ export default function App() {
   const pollRef = useRef(null);
 
   const isAdmin = user?.role==="Admin";
-  const isOwner = user?.role==="Owner"||isAdmin;
+  const isOwner = user?.role==="BI"||isAdmin;  // BI gets process owner access; Admin gets full access
 
   // ── Poll Supabase every 15s for live updates ───────────────────────────────
   const fetchAll = useCallback(async () => {
@@ -251,7 +250,7 @@ function Sidebar({page,setPage,user,syncStatus,lastSync,onRefresh,onLogout}) {
         ))}
       </div>
       <div style={{padding:"0 24px"}}>
-        <div style={{fontSize:11,fontWeight:700,letterSpacing:1,textTransform:"uppercase",marginBottom:2,color:user.role==="Admin"?"#f59e0b":user.role==="Owner"?"#4a8fd4":"#4a7096"}}>
+        <div style={{fontSize:11,fontWeight:700,letterSpacing:1,textTransform:"uppercase",marginBottom:2,color:user.role==="Admin"?"#f59e0b":"#4a8fd4"}}>
           {user.label}{user.role==="Admin"&&<span style={{marginLeft:8,background:"#f59e0b",color:"#0a1628",fontSize:9,padding:"2px 6px",borderRadius:3,fontWeight:700}}>ADMIN</span>}
         </div>
         <div style={{fontSize:10,color:"#2d4a6e",marginBottom:12}}>{user.email}</div>
