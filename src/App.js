@@ -196,7 +196,7 @@ export default function App() {
       } else {
         const { id, updated_at, ...fields } = payload;
         await sbFetch("rocks", { method:"PATCH", body:fields, query:`?id=eq.${id}` });
-        const auditFields = ["initiative","owner","target","progress","status","notes","bu","sector"];
+        const auditFields = ["initiative","owner","target","progress","status","notes","bu","sector","quarter","business_goal"];
         for (const f of auditFields) {
           if (fields[f] !== undefined && String(fields[f]) !== String(old[f]??'')) {
             await writeAudit("UPDATE", "rocks", id, f, old[f]??'', fields[f]);
@@ -445,17 +445,43 @@ function SectorCard({d, activeQ}) {
 }
 
 // ─── ROCKS ────────────────────────────────────────────────────────────────────
+const BUSINESS_GOALS = [
+  "All Goals",
+  "Stronger Cash Position",
+  "Succession Plan in Place",
+  "Productivity & Process Efficiencies Gained",
+  "Stronger Partnerships & Joint Ventures",
+];
+
+const GOAL_COLORS = {
+  "Stronger Cash Position":                      "#0e7490",
+  "Succession Plan in Place":                    "#5c4db1",
+  "Productivity & Process Efficiencies Gained":  "#0e7a5a",
+  "Stronger Partnerships & Joint Ventures":      "#1a3f7a",
+};
+const GOAL_SHORT = {
+  "Stronger Cash Position":                      "Cash Position",
+  "Succession Plan in Place":                    "Succession Plan",
+  "Productivity & Process Efficiencies Gained":  "Productivity",
+  "Stronger Partnerships & Joint Ventures":      "Partnerships & JVs",
+};
+
 function RocksPage({rocks,isOwner,isAdmin,onSave,onDelete,modal,setModal}) {
-  const [fQ,setFQ]   = useState("Q1");
-  const [fBU,setFBU] = useState("All");
-  const [fSt,setFSt] = useState("All");
-  const [saving,setSaving]     = useState(false);
-  const [rolling,setRolling]   = useState(false);
+  const [fQ,setFQ]     = useState("Q1");
+  const [fBU,setFBU]   = useState("All");
+  const [fSt,setFSt]   = useState("All");
+  const [fGoal,setFGoal] = useState("All Goals");
+  const [saving,setSaving]   = useState(false);
+  const [rolling,setRolling] = useState(false);
 
   // Rocks for selected quarter
-  const qRocks   = rocks.filter(r=>(r.quarter||"Q1")===fQ);
-  const allBUs   = ["All",...Array.from(new Set(qRocks.map(r=>r.bu)))];
-  const filtered = qRocks.filter(r=>(fBU==="All"||r.bu===fBU)&&(fSt==="All"||r.status===fSt));
+  const qRocks = rocks.filter(r=>(r.quarter||"Q1")===fQ);
+  const allBUs = ["All",...Array.from(new Set(qRocks.map(r=>r.bu)))];
+  const filtered = qRocks.filter(r=>
+    (fBU==="All"||r.bu===fBU) &&
+    (fSt==="All"||r.status===fSt) &&
+    (fGoal==="All Goals"||r.business_goal===fGoal)
+  );
 
   const n    = qRocks.length;
   const met  = qRocks.filter(r=>r.status==="✓ Target Met").length;
@@ -496,12 +522,12 @@ function RocksPage({rocks,isOwner,isAdmin,onSave,onDelete,modal,setModal}) {
       <PH title="Rocks Tracker" sub={`Strategic Initiatives · ${fQ} 2026`}/>
 
       {/* Quarter Tabs */}
-      <div style={{display:"flex",gap:8,marginBottom:20,alignItems:"center",flexWrap:"wrap"}}>
+      <div style={{display:"flex",gap:8,marginBottom:16,alignItems:"center",flexWrap:"wrap"}}>
         <span style={{fontSize:11,color:C.muted,letterSpacing:1}}>QUARTER:</span>
         {["Q1","Q2","Q3","Q4"].map(q=>{
           const qn = rocks.filter(r=>(r.quarter||"Q1")===q).length;
           return (
-            <button key={q} onClick={()=>{setFQ(q);setFBU("All");setFSt("All");}} style={{
+            <button key={q} onClick={()=>{setFQ(q);setFBU("All");setFSt("All");setFGoal("All Goals");}} style={{
               padding:"6px 16px", borderRadius:4, cursor:"pointer", letterSpacing:1, fontSize:12,
               border:`1px solid ${fQ===q?"#1a3f7a":C.border}`,
               background: fQ===q?"#1a3f7a":"none",
@@ -512,7 +538,6 @@ function RocksPage({rocks,isOwner,isAdmin,onSave,onDelete,modal,setModal}) {
             </button>
           );
         })}
-        {/* Rollover button — Admin only */}
         {isAdmin && fQ!=="Q4" && (
           <button onClick={handleRollover} disabled={rolling} style={{
             marginLeft:"auto", padding:"6px 14px", borderRadius:4, cursor:"pointer",
@@ -524,13 +549,38 @@ function RocksPage({rocks,isOwner,isAdmin,onSave,onDelete,modal,setModal}) {
         )}
       </div>
 
+      {/* Business Goal Filter Tabs */}
+      <div style={{marginBottom:20}}>
+        <div style={{fontSize:11,color:C.muted,letterSpacing:1,marginBottom:8}}>BUSINESS GOAL:</div>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+          {BUSINESS_GOALS.map(goal=>{
+            const isActive = fGoal===goal;
+            const clr = goal==="All Goals"?"#64748b":(GOAL_COLORS[goal]||C.accent);
+            const cnt = goal==="All Goals"?qRocks.length:qRocks.filter(r=>r.business_goal===goal).length;
+            return (
+              <button key={goal} onClick={()=>setFGoal(goal)} style={{
+                padding:"6px 14px", borderRadius:20, cursor:"pointer", fontSize:11,
+                border:`1px solid ${isActive?clr:C.border}`,
+                background: isActive?clr:"none",
+                color: isActive?"#fff":C.muted,
+                fontWeight: isActive?700:400,
+                letterSpacing:0.3,
+              }}>
+                {goal==="All Goals"?"All Goals":(GOAL_SHORT[goal]||goal)}
+                {cnt>0&&<span style={{marginLeft:5,fontSize:10,opacity:0.8}}>({cnt})</span>}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* KPI Strip */}
       <div style={S.strip}>
-        <KPI label="Total Rocks"       val={n}         sub={`in ${fQ}`}                                 clr="#64748b"/>
-        <KPI label="Target Met"        val={met}        sub={`${n?Math.round(met/n*100):0}% complete`}  clr="#0e7a5a"/>
-        <KPI label="On Track"          val={onT}        sub="progressing well"                          clr="#1a5fb4"/>
-        <KPI label="At Risk / Pending" val={atR+pend}   sub="needs attention"                           clr="#c0480a"/>
-        <KPI label="Avg Progress"      val={`${avg}%`}  sub="all initiatives"                           clr="#2563eb"/>
+        <KPI label="Total Rocks"       val={n}         sub={`in ${fQ}`}                                clr="#64748b"/>
+        <KPI label="Target Met"        val={met}        sub={`${n?Math.round(met/n*100):0}% complete`} clr="#0e7a5a"/>
+        <KPI label="On Track"          val={onT}        sub="progressing well"                         clr="#1a5fb4"/>
+        <KPI label="At Risk / Pending" val={atR+pend}   sub="needs attention"                          clr="#c0480a"/>
+        <KPI label="Avg Progress"      val={`${avg}%`}  sub="all initiatives"                          clr="#2563eb"/>
       </div>
 
       {/* Filters + Add */}
@@ -539,16 +589,18 @@ function RocksPage({rocks,isOwner,isAdmin,onSave,onDelete,modal,setModal}) {
           <select style={S.select} value={fBU} onChange={e=>setFBU(e.target.value)}>{allBUs.map(b=><option key={b}>{b}</option>)}</select>
           <select style={S.select} value={fSt}  onChange={e=>setFSt(e.target.value)}>{["All","✓ Target Met","On Track","At Risk","Pending"].map(s=><option key={s}>{s}</option>)}</select>
         </div>
-        {isOwner&&<button style={S.btnPrimary} onClick={()=>setModal({_defaultQ:fQ})}>+ Add Rock</button>}
+        {isOwner&&<button style={S.btnPrimary} onClick={()=>setModal({_defaultQ:fQ,_defaultGoal:fGoal==="All Goals"?"":fGoal})}>+ Add Rock</button>}
       </div>
 
       {/* Empty state */}
-      {n===0&&(
+      {filtered.length===0&&(
         <div style={{...S.card,padding:40,textAlign:"center",color:C.muted}}>
           <div style={{fontSize:24,marginBottom:12}}>◈</div>
-          <div style={{fontSize:14,fontWeight:600,marginBottom:6}}>No rocks for {fQ} yet</div>
+          <div style={{fontSize:14,fontWeight:600,marginBottom:6}}>
+            {n===0?`No rocks for ${fQ} yet`:`No rocks match the selected filters`}
+          </div>
           <div style={{fontSize:12}}>
-            {isAdmin?`Use the rollover button to carry over incomplete Q${["Q1","Q2","Q3","Q4"].indexOf(fQ)} rocks, or add new ones.`:"Contact your administrator to add rocks for this quarter."}
+            {n===0&&isAdmin?`Use the rollover button or add new rocks.`:"Try a different Business Goal or status filter."}
           </div>
         </div>
       )}
@@ -559,13 +611,14 @@ function RocksPage({rocks,isOwner,isAdmin,onSave,onDelete,modal,setModal}) {
           <div style={S.buGroupHdr}>
             <span style={{...S.buTag,fontSize:12,padding:"3px 10px"}}>{bu}</span>
             <span style={{fontSize:11,color:C.muted,flex:1}}>{rows[0].sector}</span>
-            <span style={{...S.buTag,background:"rgba(26,63,122,0.08)",color:"#1a3f7a",fontSize:10}}>{fQ}</span>
+            {fGoal!=="All Goals"&&<span style={{fontSize:10,fontWeight:600,color:"#fff",background:GOAL_COLORS[fGoal]||C.accent,padding:"2px 8px",borderRadius:10}}>{GOAL_SHORT[fGoal]||fGoal}</span>}
+            <span style={{...S.buTag,background:"rgba(26,63,122,0.08)",color:"#1a3f7a",fontSize:10,marginLeft:4}}>{fQ}</span>
             <span style={{fontSize:11,color:C.muted,marginLeft:8}}>{rows.length} rocks</span>
           </div>
           {rows.map(rock=><RockRow key={rock.id} rock={rock} isOwner={isOwner} onEdit={()=>setModal(rock)} onDelete={async()=>{if(window.confirm("Delete this rock?"))await onDelete(rock.id);}}/>)}
         </div>
       ))}
-      {modal&&isOwner&&<RockModal rock={modal==="add"||modal?._defaultQ?null:modal} defaultQ={modal?._defaultQ||fQ} saving={saving} onSave={async r=>{setSaving(true);await onSave(r);setSaving(false);setModal(null);}} onClose={()=>setModal(null)}/>}
+      {modal&&isOwner&&<RockModal rock={modal==="add"||modal?._defaultQ?null:modal} defaultQ={modal?._defaultQ||fQ} defaultGoal={modal?._defaultGoal||""} saving={saving} onSave={async r=>{setSaving(true);await onSave(r);setSaving(false);setModal(null);}} onClose={()=>setModal(null)}/>}
     </div>
   );
 }
@@ -577,9 +630,10 @@ function RockRow({rock,isOwner,onEdit,onDelete}) {
     <div style={{display:"flex",alignItems:"flex-start",gap:20,padding:"14px 18px",borderBottom:`1px solid rgba(0,0,0,0.06)`}}>
       <div style={{flex:1}}>
         <div style={{fontSize:13,color:C.text,fontWeight:500,marginBottom:4}}>{rock.initiative}</div>
-        <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
+        <div style={{display:"flex",gap:16,flexWrap:"wrap",alignItems:"center"}}>
           <span style={{fontSize:11,color:C.muted}}>Owner: {rock.owner}</span>
           <span style={{fontSize:11,color:C.muted}}>Target: {rock.target}</span>
+          {rock.business_goal&&<span style={{fontSize:10,fontWeight:600,color:"#fff",background:GOAL_COLORS[rock.business_goal]||C.accent,padding:"2px 8px",borderRadius:10}}>{GOAL_SHORT[rock.business_goal]||rock.business_goal}</span>}
           {rock.notes&&<span style={{fontSize:11,color:"#334155",fontStyle:"italic"}}>{rock.notes}</span>}
         </div>
       </div>
@@ -700,8 +754,8 @@ function ScorecardPage({rocks,revenue}) {
 }
 
 // ─── MODALS ───────────────────────────────────────────────────────────────────
-function RockModal({rock,defaultQ,saving,onSave,onClose}) {
-  const [f,setF]=useState(rock?{...rock}:{bu:"",sector:SECTORS[0],quarter:defaultQ||"Q1",initiative:"",owner:"",target:"",progress:0,status:"On Track",notes:""});
+function RockModal({rock,defaultQ,defaultGoal,saving,onSave,onClose}) {
+  const [f,setF]=useState(rock?{...rock}:{bu:"",sector:SECTORS[0],quarter:defaultQ||"Q1",business_goal:defaultGoal||"",initiative:"",owner:"",target:"",progress:0,status:"On Track",notes:""});
   const s=(k,v)=>setF(p=>({...p,[k]:v}));
   return (
     <Overlay onClose={onClose}>
@@ -716,6 +770,12 @@ function RockModal({rock,defaultQ,saving,onSave,onClose}) {
         </MF>
       </div>
       <MF label="Sector"><select style={S.modalInput} value={f.sector} onChange={e=>s("sector",e.target.value)}>{SECTORS.map(x=><option key={x}>{x}</option>)}</select></MF>
+      <MF label="Business Goal">
+        <select style={S.modalInput} value={f.business_goal||""} onChange={e=>s("business_goal",e.target.value)}>
+          <option value="">— Select a Business Goal —</option>
+          {BUSINESS_GOALS.filter(g=>g!=="All Goals").map(g=><option key={g} value={g}>{g}</option>)}
+        </select>
+      </MF>
       {[["Initiative","initiative"],["Owner","owner"],["Target","target"]].map(([l,k])=>(
         <MF key={k} label={l}><input style={S.modalInput} value={f[k]} onChange={e=>s(k,e.target.value)}/></MF>
       ))}
