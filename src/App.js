@@ -41,36 +41,36 @@ const SEED_REVENUE = [
 ];
 
 const SEED_ROCKS = [
-  { id:"r1",  bu:"AAC",   sector:"Construction & Manufacturing",      initiative:"Transfer / Improvement of Batangas Yard",            owner:"JHL",           target:"100%",      progress:90,   status:"On Track",     notes:"Small area left; drainage to finish by end of March" },
-  { id:"r2",  bu:"AAC",   sector:"Construction & Manufacturing",      initiative:"Vibrating Screen for Sand",                          owner:"Engineering",   target:"100%",      progress:100,  status:"✓ Target Met", notes:"Testing done" },
-  { id:"r3",  bu:"AAC",   sector:"Construction & Manufacturing",      initiative:"Secure High Value Clients (≥2)",                     owner:"Sales",         target:"2 clients", progress:100,  status:"✓ Target Met", notes:"Secured 6" },
-  { id:"r4",  bu:"AAC",   sector:"Construction & Manufacturing",      initiative:"QR System (Odoo) — External Delivery",               owner:"ABC SID",       target:"Beta Test", progress:25,   status:"At Risk",      notes:"Queued after EPICS, Q2 target" },
-  { id:"r5",  bu:"AAC",   sector:"Construction & Manufacturing",      initiative:"Increase in Collection Efficiency",                  owner:"ABC SID",       target:"85%",       progress:75,   status:"On Track",     notes:"" },
-  { id:"r6",  bu:"AAC",   sector:"Construction & Manufacturing",      initiative:"Fill Up Vacant RnF Positions",                       owner:"HR",            target:"6 pos.",    progress:33,   status:"At Risk",      notes:"2/6 filled" },
-  { id:"r7",  bu:"PSC",   sector:"Construction & Manufacturing",      initiative:"Complete Phase 1 Structural Works",                  owner:"Ops",           target:"100%",      progress:65,   status:"On Track",     notes:"" },
-  { id:"r8",  bu:"PSC",   sector:"Construction & Manufacturing",      initiative:"Safety Compliance Audit",                            owner:"QHSE",          target:"100%",      progress:100,  status:"✓ Target Met", notes:"Passed all criteria" },
-  { id:"r9",  bu:"PHI",   sector:"Real Estate & Property Management", initiative:"Launch Residential Project Phase 2",                 owner:"PM",            target:"100%",      progress:50,   status:"On Track",     notes:"" },
-  { id:"r10", bu:"PHI",   sector:"Real Estate & Property Management", initiative:"Collection Rate Improvement",                        owner:"Finance",       target:"90%",       progress:72,   status:"On Track",     notes:"" },
-  { id:"r11", bu:"PSI",   sector:"Human Capital Development",         initiative:"Reach Households (target 1,760)",                    owner:"Ashlyn",        target:"8%",        progress:42.6, status:"At Risk",      notes:"Annual: 1760 | Quarter: 450 | Current: 192" },
-  { id:"r12", bu:"PSI",   sector:"Human Capital Development",         initiative:"Japan Skilled Workers — Screening & Nihongo",        owner:"Ashlyn/Jean",   target:"60%",       progress:100,  status:"✓ Target Met", notes:"" },
-  { id:"r13", bu:"PSI",   sector:"Human Capital Development",         initiative:"Completion of Performance Plans",                    owner:"Ashlyn",        target:"30%",       progress:50,   status:"At Risk",      notes:"" },
-  { id:"r14", bu:"PTMSI", sector:"Maritime Logistics",                initiative:"Manpower Marina Safety Manning",                     owner:"OPS/HR",        target:"0.95",      progress:98,   status:"On Track",     notes:"" },
-  { id:"r15", bu:"PTMSI", sector:"Maritime Logistics",                initiative:"Operations Requirements based on Vessel Activities", owner:"OPS/HR",        target:"0.85",      progress:78,   status:"On Track",     notes:"" },
-  { id:"r16", bu:"PTMSI", sector:"Maritime Logistics",                initiative:"100% Categorization of Items for WH",               owner:"OPS/Whse",      target:"1",         progress:100,  status:"✓ Target Met", notes:"" },
-  { id:"r17", bu:"PTMSI", sector:"Maritime Logistics",                initiative:"As Built Plan (ABP): Tug Boat",                     owner:"Tech Supt",     target:"1",         progress:100,  status:"✓ Target Met", notes:"" },
-  { id:"r18", bu:"PTMSI", sector:"Maritime Logistics",                initiative:"As Built Plan (ABP): LCT",                          owner:"Tech Supt",     target:"0.95",      progress:95,   status:"On Track",     notes:"" },
-  { id:"r19", bu:"PTMSI", sector:"Maritime Logistics",                initiative:"Meeting Marina Requirements for Passenger Ships",   owner:"Tech Supt/OPS", target:"0.7",       progress:75,   status:"On Track",     notes:"" },
-  { id:"r20", bu:"PTMSI", sector:"Maritime Logistics",                initiative:"Accredit ≥2 New Subcon of AMICI/PTMSI",             owner:"SCM/BPM",       target:"2",         progress:100,  status:"✓ Target Met", notes:"" },
-  { id:"r21", bu:"PTMSI", sector:"Maritime Logistics",                initiative:"Rent to Own Program for Subcon",                    owner:"SCM/BPM/GM",    target:"1",         progress:100,  status:"✓ Target Met", notes:"" },
-  { id:"r22", bu:"AMICI", sector:"Maritime Logistics",                initiative:"Identify Next-in-Line for Critical Roles",          owner:"Ops/HR",        target:"100%",      progress:67,   status:"At Risk",      notes:"Ops Head & QC identified; Commercial hiring ongoing" },
-  { id:"r23", bu:"AMICI", sector:"Maritime Logistics",                initiative:"Establish IDP to Address Succession Gaps",          owner:"Ops/HR",        target:"100%",      progress:50,   status:"At Risk",      notes:"IDP targeting Key Technical Training (Q2)" },
-  { id:"r24", bu:"AMICI", sector:"Maritime Logistics",                initiative:"Install 3 Additional Transformers in Shipyard",     owner:"GM/BPM/Ops",    target:"3 units",   progress:100,  status:"✓ Target Met", notes:"" },
-  { id:"r25", bu:"AMICI", sector:"Maritime Logistics",                initiative:"Identify Facilities Maintenance Team",              owner:"Ops/HR",        target:"100%",      progress:80,   status:"On Track",     notes:"" },
-  { id:"r26", bu:"AMICI", sector:"Maritime Logistics",                initiative:"Develop & Implement Standardized PMS",              owner:"OPS",           target:"1",         progress:10,   status:"Pending",      notes:"Follow through on maintenance program" },
-  { id:"r27", bu:"AMICI", sector:"Maritime Logistics",                initiative:"Implement Comprehensive Maintenance Program",       owner:"OPS",           target:"100%",      progress:80,   status:"On Track",     notes:"" },
-  { id:"r28", bu:"AMICI", sector:"Maritime Logistics",                initiative:"Accredit ≥2 New Structural Subcontractors",         owner:"SCM/BPM",       target:"2",         progress:100,  status:"✓ Target Met", notes:"A&A, C&A, Cleat Builders, Andes Ship Repair" },
-  { id:"r29", bu:"AMICI", sector:"Maritime Logistics",                initiative:"Draft & Align RTO Program with PSC",               owner:"SCM/BPM/GM",    target:"100%",      progress:100,  status:"✓ Target Met", notes:"Aligned & reviewed" },
-  { id:"r30", bu:"AMICI", sector:"Maritime Logistics",                initiative:"Implement RTO Program for Subcontractors",          owner:"SCM/BPM/GM",    target:"100%",      progress:100,  status:"✓ Target Met", notes:"1 applicant for implementation" },
+  { id:"r1",  bu:"AAC",   quarter:"Q1", sector:"Construction & Manufacturing",      initiative:"Transfer / Improvement of Batangas Yard",            owner:"JHL",           target:"100%",      progress:90,   status:"On Track",     notes:"Small area left; drainage to finish by end of March" },
+  { id:"r2",  bu:"AAC",   quarter:"Q1", sector:"Construction & Manufacturing",      initiative:"Vibrating Screen for Sand",                          owner:"Engineering",   target:"100%",      progress:100,  status:"✓ Target Met", notes:"Testing done" },
+  { id:"r3",  bu:"AAC",   quarter:"Q1", sector:"Construction & Manufacturing",      initiative:"Secure High Value Clients (≥2)",                     owner:"Sales",         target:"2 clients", progress:100,  status:"✓ Target Met", notes:"Secured 6" },
+  { id:"r4",  bu:"AAC",   quarter:"Q1", sector:"Construction & Manufacturing",      initiative:"QR System (Odoo) — External Delivery",               owner:"ABC SID",       target:"Beta Test", progress:25,   status:"At Risk",      notes:"Queued after EPICS, Q2 target" },
+  { id:"r5",  bu:"AAC",   quarter:"Q1", sector:"Construction & Manufacturing",      initiative:"Increase in Collection Efficiency",                  owner:"ABC SID",       target:"85%",       progress:75,   status:"On Track",     notes:"" },
+  { id:"r6",  bu:"AAC",   quarter:"Q1", sector:"Construction & Manufacturing",      initiative:"Fill Up Vacant RnF Positions",                       owner:"HR",            target:"6 pos.",    progress:33,   status:"At Risk",      notes:"2/6 filled" },
+  { id:"r7",  bu:"PSC",   quarter:"Q1", sector:"Construction & Manufacturing",      initiative:"Complete Phase 1 Structural Works",                  owner:"Ops",           target:"100%",      progress:65,   status:"On Track",     notes:"" },
+  { id:"r8",  bu:"PSC",   quarter:"Q1", sector:"Construction & Manufacturing",      initiative:"Safety Compliance Audit",                            owner:"QHSE",          target:"100%",      progress:100,  status:"✓ Target Met", notes:"Passed all criteria" },
+  { id:"r9",  bu:"PHI",   quarter:"Q1", sector:"Real Estate & Property Management", initiative:"Launch Residential Project Phase 2",                owner:"PM",            target:"100%",      progress:50,   status:"On Track",     notes:"" },
+  { id:"r10", bu:"PHI",   quarter:"Q1", sector:"Real Estate & Property Management", initiative:"Collection Rate Improvement",                       owner:"Finance",       target:"90%",       progress:72,   status:"On Track",     notes:"" },
+  { id:"r11", bu:"PSI",   quarter:"Q1", sector:"Human Capital Development",         initiative:"Reach Households (target 1,760)",                   owner:"Ashlyn",        target:"8%",        progress:42.6, status:"At Risk",      notes:"Annual: 1760 | Quarter: 450 | Current: 192" },
+  { id:"r12", bu:"PSI",   quarter:"Q1", sector:"Human Capital Development",         initiative:"Japan Skilled Workers — Screening & Nihongo",       owner:"Ashlyn/Jean",   target:"60%",       progress:100,  status:"✓ Target Met", notes:"" },
+  { id:"r13", bu:"PSI",   quarter:"Q1", sector:"Human Capital Development",         initiative:"Completion of Performance Plans",                   owner:"Ashlyn",        target:"30%",       progress:50,   status:"At Risk",      notes:"" },
+  { id:"r14", bu:"PTMSI", quarter:"Q1", sector:"Maritime Logistics",                initiative:"Manpower Marina Safety Manning",                    owner:"OPS/HR",        target:"0.95",      progress:98,   status:"On Track",     notes:"" },
+  { id:"r15", bu:"PTMSI", quarter:"Q1", sector:"Maritime Logistics",                initiative:"Operations Requirements based on Vessel Activities", owner:"OPS/HR",       target:"0.85",      progress:78,   status:"On Track",     notes:"" },
+  { id:"r16", bu:"PTMSI", quarter:"Q1", sector:"Maritime Logistics",                initiative:"100% Categorization of Items for WH",              owner:"OPS/Whse",      target:"1",         progress:100,  status:"✓ Target Met", notes:"" },
+  { id:"r17", bu:"PTMSI", quarter:"Q1", sector:"Maritime Logistics",                initiative:"As Built Plan (ABP): Tug Boat",                    owner:"Tech Supt",     target:"1",         progress:100,  status:"✓ Target Met", notes:"" },
+  { id:"r18", bu:"PTMSI", quarter:"Q1", sector:"Maritime Logistics",                initiative:"As Built Plan (ABP): LCT",                         owner:"Tech Supt",     target:"0.95",      progress:95,   status:"On Track",     notes:"" },
+  { id:"r19", bu:"PTMSI", quarter:"Q1", sector:"Maritime Logistics",                initiative:"Meeting Marina Requirements for Passenger Ships",  owner:"Tech Supt/OPS", target:"0.7",       progress:75,   status:"On Track",     notes:"" },
+  { id:"r20", bu:"PTMSI", quarter:"Q1", sector:"Maritime Logistics",                initiative:"Accredit ≥2 New Subcon of AMICI/PTMSI",            owner:"SCM/BPM",       target:"2",         progress:100,  status:"✓ Target Met", notes:"" },
+  { id:"r21", bu:"PTMSI", quarter:"Q1", sector:"Maritime Logistics",                initiative:"Rent to Own Program for Subcon",                   owner:"SCM/BPM/GM",    target:"1",         progress:100,  status:"✓ Target Met", notes:"" },
+  { id:"r22", bu:"AMICI", quarter:"Q1", sector:"Maritime Logistics",                initiative:"Identify Next-in-Line for Critical Roles",         owner:"Ops/HR",        target:"100%",      progress:67,   status:"At Risk",      notes:"Ops Head & QC identified; Commercial hiring ongoing" },
+  { id:"r23", bu:"AMICI", quarter:"Q1", sector:"Maritime Logistics",                initiative:"Establish IDP to Address Succession Gaps",         owner:"Ops/HR",        target:"100%",      progress:50,   status:"At Risk",      notes:"IDP targeting Key Technical Training (Q2)" },
+  { id:"r24", bu:"AMICI", quarter:"Q1", sector:"Maritime Logistics",                initiative:"Install 3 Additional Transformers in Shipyard",    owner:"GM/BPM/Ops",    target:"3 units",   progress:100,  status:"✓ Target Met", notes:"" },
+  { id:"r25", bu:"AMICI", quarter:"Q1", sector:"Maritime Logistics",                initiative:"Identify Facilities Maintenance Team",             owner:"Ops/HR",        target:"100%",      progress:80,   status:"On Track",     notes:"" },
+  { id:"r26", bu:"AMICI", quarter:"Q1", sector:"Maritime Logistics",                initiative:"Develop & Implement Standardized PMS",             owner:"OPS",           target:"1",         progress:10,   status:"Pending",      notes:"Follow through on maintenance program" },
+  { id:"r27", bu:"AMICI", quarter:"Q1", sector:"Maritime Logistics",                initiative:"Implement Comprehensive Maintenance Program",      owner:"OPS",           target:"100%",      progress:80,   status:"On Track",     notes:"" },
+  { id:"r28", bu:"AMICI", quarter:"Q1", sector:"Maritime Logistics",                initiative:"Accredit ≥2 New Structural Subcontractors",        owner:"SCM/BPM",       target:"2",         progress:100,  status:"✓ Target Met", notes:"A&A, C&A, Cleat Builders, Andes Ship Repair" },
+  { id:"r29", bu:"AMICI", quarter:"Q1", sector:"Maritime Logistics",                initiative:"Draft & Align RTO Program with PSC",              owner:"SCM/BPM/GM",    target:"100%",      progress:100,  status:"✓ Target Met", notes:"Aligned & reviewed" },
+  { id:"r30", bu:"AMICI", quarter:"Q1", sector:"Maritime Logistics",                initiative:"Implement RTO Program for Subcontractors",         owner:"SCM/BPM/GM",    target:"100%",      progress:100,  status:"✓ Target Met", notes:"1 applicant for implementation" },
 ];
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
@@ -230,7 +230,7 @@ export default function App() {
       <Sidebar page={page} setPage={setPage} user={user} syncStatus={syncStatus} lastSync={lastSync} onRefresh={fetchAll} onLogout={()=>{setUser(null);setSyncStatus("idle");clearInterval(pollRef.current);}}/>
       <main style={S.main}>
         {page==="overview"  && <OverviewPage  revenue={revenue}  activeSector={activeSector} setActiveSector={setActiveSector} isOwner={isOwner} onEditRev={r=>setRevModal(r)}/>}
-        {page==="rocks"     && <RocksPage     rocks={rocks}      isOwner={isOwner} onSave={saveRock} onDelete={deleteRock} modal={rockModal} setModal={setRockModal}/>}
+        {page==="rocks"     && <RocksPage     rocks={rocks}      isOwner={isOwner} isAdmin={isAdmin} onSave={saveRock} onDelete={deleteRock} modal={rockModal} setModal={setRockModal}/>}
         {page==="scorecard" && <ScorecardPage rocks={rocks}      revenue={revenue}/>}
         {page==="audit"     && <AuditPage     isAdmin={isAdmin}/>}
       </main>
@@ -445,44 +445,127 @@ function SectorCard({d, activeQ}) {
 }
 
 // ─── ROCKS ────────────────────────────────────────────────────────────────────
-function RocksPage({rocks,isOwner,onSave,onDelete,modal,setModal}) {
-  const [fBU,setFBU]=useState("All"), [fSt,setFSt]=useState("All"), [saving,setSaving]=useState(false);
-  const allBUs=["All",...Array.from(new Set(rocks.map(r=>r.bu)))];
-  const filtered=rocks.filter(r=>(fBU==="All"||r.bu===fBU)&&(fSt==="All"||r.status===fSt));
-  const n=rocks.length, met=rocks.filter(r=>r.status==="✓ Target Met").length;
-  const onT=rocks.filter(r=>r.status==="On Track").length, atR=rocks.filter(r=>r.status==="At Risk").length;
-  const pend=rocks.filter(r=>r.status==="Pending").length;
-  const avg=n?Math.round(rocks.reduce((s,r)=>s+(r.progress||0),0)/n):0;
+function RocksPage({rocks,isOwner,isAdmin,onSave,onDelete,modal,setModal}) {
+  const [fQ,setFQ]   = useState("Q1");
+  const [fBU,setFBU] = useState("All");
+  const [fSt,setFSt] = useState("All");
+  const [saving,setSaving]     = useState(false);
+  const [rolling,setRolling]   = useState(false);
+
+  // Rocks for selected quarter
+  const qRocks   = rocks.filter(r=>(r.quarter||"Q1")===fQ);
+  const allBUs   = ["All",...Array.from(new Set(qRocks.map(r=>r.bu)))];
+  const filtered = qRocks.filter(r=>(fBU==="All"||r.bu===fBU)&&(fSt==="All"||r.status===fSt));
+
+  const n    = qRocks.length;
+  const met  = qRocks.filter(r=>r.status==="✓ Target Met").length;
+  const onT  = qRocks.filter(r=>r.status==="On Track").length;
+  const atR  = qRocks.filter(r=>r.status==="At Risk").length;
+  const pend = qRocks.filter(r=>r.status==="Pending").length;
+  const avg  = n?Math.round(qRocks.reduce((s,r)=>s+(r.progress||0),0)/n):0;
+
   const grouped={};
   filtered.forEach(r=>{if(!grouped[r.bu])grouped[r.bu]=[];grouped[r.bu].push(r);});
+
+  // Roll over incomplete rocks to next quarter
+  const handleRollover = async () => {
+    const quarters = ["Q1","Q2","Q3","Q4"];
+    const nextQ    = quarters[quarters.indexOf(fQ)+1];
+    if (!nextQ) { alert("Q4 is the last quarter. No rollover possible."); return; }
+    const incomplete = qRocks.filter(r=>r.status!=="✓ Target Met");
+    if (!incomplete.length) { alert(`No incomplete rocks in ${fQ} to roll over.`); return; }
+    if (!window.confirm(`Roll over ${incomplete.length} incomplete ${fQ} rock(s) to ${nextQ}? Each will be copied with progress reset to 0.`)) return;
+    setRolling(true);
+    for (const rock of incomplete) {
+      const {id, updated_at, ...fields} = rock;
+      await onSave({
+        ...fields,
+        quarter:  nextQ,
+        progress: 0,
+        status:   "On Track",
+        notes:    `Carried over from ${fQ}. Previous progress: ${rock.progress}%${rock.notes?` · ${rock.notes}`:""}`,
+      });
+    }
+    setRolling(false);
+    setFQ(nextQ);
+    alert(`✅ ${incomplete.length} rock(s) rolled over to ${nextQ}!`);
+  };
+
   return (
     <div style={S.page}>
-      <PH title="Rocks Tracker" sub="Strategic Initiatives Progress · Q1 2026"/>
-      <div style={S.strip}>
-        <KPI label="Total Rocks"       val={n}        sub="across all BUs"                            clr="#64748b"/>
-        <KPI label="Target Met"        val={met}      sub={`${n?Math.round(met/n*100):0}% complete`}  clr="#0e7a5a"/>
-        <KPI label="On Track"          val={onT}      sub="progressing well"                          clr="#1a5fb4"/>
-        <KPI label="At Risk / Pending" val={atR+pend} sub="needs attention"                           clr="#c0480a"/>
-        <KPI label="Avg Progress"      val={`${avg}%`} sub="all initiatives"                          clr="#2563eb"/>
+      <PH title="Rocks Tracker" sub={`Strategic Initiatives · ${fQ} 2026`}/>
+
+      {/* Quarter Tabs */}
+      <div style={{display:"flex",gap:8,marginBottom:20,alignItems:"center",flexWrap:"wrap"}}>
+        <span style={{fontSize:11,color:C.muted,letterSpacing:1}}>QUARTER:</span>
+        {["Q1","Q2","Q3","Q4"].map(q=>{
+          const qn = rocks.filter(r=>(r.quarter||"Q1")===q).length;
+          return (
+            <button key={q} onClick={()=>{setFQ(q);setFBU("All");setFSt("All");}} style={{
+              padding:"6px 16px", borderRadius:4, cursor:"pointer", letterSpacing:1, fontSize:12,
+              border:`1px solid ${fQ===q?"#1a3f7a":C.border}`,
+              background: fQ===q?"#1a3f7a":"none",
+              color: fQ===q?"#fff":C.muted,
+              fontWeight: fQ===q?700:400,
+            }}>
+              {q} {qn>0&&<span style={{fontSize:10,opacity:0.8}}>({qn})</span>}
+            </button>
+          );
+        })}
+        {/* Rollover button — Admin only */}
+        {isAdmin && fQ!=="Q4" && (
+          <button onClick={handleRollover} disabled={rolling} style={{
+            marginLeft:"auto", padding:"6px 14px", borderRadius:4, cursor:"pointer",
+            border:`1px solid #c0480a`, background:"none", color:"#c0480a",
+            fontSize:11, fontWeight:600, letterSpacing:0.5,
+          }}>
+            {rolling?"Rolling…":`↷ Roll incomplete to ${["Q1","Q2","Q3","Q4"][["Q1","Q2","Q3","Q4"].indexOf(fQ)+1]}`}
+          </button>
+        )}
       </div>
+
+      {/* KPI Strip */}
+      <div style={S.strip}>
+        <KPI label="Total Rocks"       val={n}         sub={`in ${fQ}`}                                 clr="#64748b"/>
+        <KPI label="Target Met"        val={met}        sub={`${n?Math.round(met/n*100):0}% complete`}  clr="#0e7a5a"/>
+        <KPI label="On Track"          val={onT}        sub="progressing well"                          clr="#1a5fb4"/>
+        <KPI label="At Risk / Pending" val={atR+pend}   sub="needs attention"                           clr="#c0480a"/>
+        <KPI label="Avg Progress"      val={`${avg}%`}  sub="all initiatives"                           clr="#2563eb"/>
+      </div>
+
+      {/* Filters + Add */}
       <div style={{...S.filterRow,justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
         <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
           <select style={S.select} value={fBU} onChange={e=>setFBU(e.target.value)}>{allBUs.map(b=><option key={b}>{b}</option>)}</select>
           <select style={S.select} value={fSt}  onChange={e=>setFSt(e.target.value)}>{["All","✓ Target Met","On Track","At Risk","Pending"].map(s=><option key={s}>{s}</option>)}</select>
         </div>
-        {isOwner&&<button style={S.btnPrimary} onClick={()=>setModal("add")}>+ Add Rock</button>}
+        {isOwner&&<button style={S.btnPrimary} onClick={()=>setModal({_defaultQ:fQ})}>+ Add Rock</button>}
       </div>
+
+      {/* Empty state */}
+      {n===0&&(
+        <div style={{...S.card,padding:40,textAlign:"center",color:C.muted}}>
+          <div style={{fontSize:24,marginBottom:12}}>◈</div>
+          <div style={{fontSize:14,fontWeight:600,marginBottom:6}}>No rocks for {fQ} yet</div>
+          <div style={{fontSize:12}}>
+            {isAdmin?`Use the rollover button to carry over incomplete Q${["Q1","Q2","Q3","Q4"].indexOf(fQ)} rocks, or add new ones.`:"Contact your administrator to add rocks for this quarter."}
+          </div>
+        </div>
+      )}
+
+      {/* Rock Groups */}
       {Object.entries(grouped).map(([bu,rows])=>(
         <div key={bu} style={S.buGroup}>
           <div style={S.buGroupHdr}>
             <span style={{...S.buTag,fontSize:12,padding:"3px 10px"}}>{bu}</span>
             <span style={{fontSize:11,color:C.muted,flex:1}}>{rows[0].sector}</span>
-            <span style={{fontSize:11,color:C.muted}}>{rows.length} rocks</span>
+            <span style={{...S.buTag,background:"rgba(26,63,122,0.08)",color:"#1a3f7a",fontSize:10}}>{fQ}</span>
+            <span style={{fontSize:11,color:C.muted,marginLeft:8}}>{rows.length} rocks</span>
           </div>
           {rows.map(rock=><RockRow key={rock.id} rock={rock} isOwner={isOwner} onEdit={()=>setModal(rock)} onDelete={async()=>{if(window.confirm("Delete this rock?"))await onDelete(rock.id);}}/>)}
         </div>
       ))}
-      {modal&&isOwner&&<RockModal rock={modal==="add"?null:modal} saving={saving} onSave={async r=>{setSaving(true);await onSave(r);setSaving(false);setModal(null);}} onClose={()=>setModal(null)}/>}
+      {modal&&isOwner&&<RockModal rock={modal==="add"||modal?._defaultQ?null:modal} defaultQ={modal?._defaultQ||fQ} saving={saving} onSave={async r=>{setSaving(true);await onSave(r);setSaving(false);setModal(null);}} onClose={()=>setModal(null)}/>}
     </div>
   );
 }
@@ -617,17 +700,25 @@ function ScorecardPage({rocks,revenue}) {
 }
 
 // ─── MODALS ───────────────────────────────────────────────────────────────────
-function RockModal({rock,saving,onSave,onClose}) {
-  const [f,setF]=useState(rock?{...rock}:{bu:"",sector:SECTORS[0],initiative:"",owner:"",target:"",progress:0,status:"On Track",notes:""});
+function RockModal({rock,defaultQ,saving,onSave,onClose}) {
+  const [f,setF]=useState(rock?{...rock}:{bu:"",sector:SECTORS[0],quarter:defaultQ||"Q1",initiative:"",owner:"",target:"",progress:0,status:"On Track",notes:""});
   const s=(k,v)=>setF(p=>({...p,[k]:v}));
   return (
     <Overlay onClose={onClose}>
       <div style={{fontSize:16,fontWeight:700,color:C.text,marginBottom:6}}>{rock?"Edit Rock":"Add New Rock"}</div>
       <div style={{fontSize:11,color:C.accent,marginBottom:16,fontStyle:"italic"}}>Saved to Supabase — visible to all users instantly.</div>
-      {[["Business Unit","bu","text"],["Initiative","initiative","text"],["Owner","owner","text"],["Target","target","text"]].map(([l,k])=>(
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+        <MF label="Business Unit"><input style={S.modalInput} value={f.bu} onChange={e=>s("bu",e.target.value)}/></MF>
+        <MF label="Quarter">
+          <select style={S.modalInput} value={f.quarter||"Q1"} onChange={e=>s("quarter",e.target.value)}>
+            {["Q1","Q2","Q3","Q4"].map(q=><option key={q}>{q}</option>)}
+          </select>
+        </MF>
+      </div>
+      <MF label="Sector"><select style={S.modalInput} value={f.sector} onChange={e=>s("sector",e.target.value)}>{SECTORS.map(x=><option key={x}>{x}</option>)}</select></MF>
+      {[["Initiative","initiative"],["Owner","owner"],["Target","target"]].map(([l,k])=>(
         <MF key={k} label={l}><input style={S.modalInput} value={f[k]} onChange={e=>s(k,e.target.value)}/></MF>
       ))}
-      <MF label="Sector"><select style={S.modalInput} value={f.sector} onChange={e=>s("sector",e.target.value)}>{SECTORS.map(x=><option key={x}>{x}</option>)}</select></MF>
       <MF label={`Progress: ${f.progress}%`}><input type="range" min={0} max={100} step={0.5} value={f.progress} onChange={e=>s("progress",Number(e.target.value))} style={{width:"100%",accentColor:C.accent}}/></MF>
       <MF label="Status"><select style={S.modalInput} value={f.status} onChange={e=>s("status",e.target.value)}>{["✓ Target Met","On Track","At Risk","Pending"].map(x=><option key={x}>{x}</option>)}</select></MF>
       <MF label="Notes"><textarea style={{...S.modalInput,height:60,resize:"vertical"}} value={f.notes} onChange={e=>s("notes",e.target.value)}/></MF>
