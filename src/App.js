@@ -223,17 +223,76 @@ export default function App() {
     else setLoginErr("Invalid credentials. Please try again.");
   };
 
+  const [searchQ, setSearchQ] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
+
+  // Global search across revenue and rocks
+  const searchResults = searchQ.trim().length < 2 ? [] : [
+    ...revenue.filter(r =>
+      r.company?.toLowerCase().includes(searchQ.toLowerCase()) ||
+      r.full_name?.toLowerCase().includes(searchQ.toLowerCase()) ||
+      r.sector?.toLowerCase().includes(searchQ.toLowerCase())
+    ).map(r => ({ type:"revenue", label:r.company, sub:r.full_name, tag:r.sector, onClick:()=>{ setPage("overview"); setSearchQ(""); setShowSearch(false); }})),
+    ...rocks.filter(r =>
+      r.initiative?.toLowerCase().includes(searchQ.toLowerCase()) ||
+      r.bu?.toLowerCase().includes(searchQ.toLowerCase()) ||
+      r.owner?.toLowerCase().includes(searchQ.toLowerCase()) ||
+      r.business_goal?.toLowerCase().includes(searchQ.toLowerCase()) ||
+      r.notes?.toLowerCase().includes(searchQ.toLowerCase())
+    ).map(r => ({ type:"rock", label:r.initiative, sub:`${r.bu} · ${r.quarter||"Q1"} · ${r.status}`, tag:r.business_goal||"", onClick:()=>{ setPage("rocks"); setSearchQ(""); setShowSearch(false); }})),
+  ].slice(0, 8);
+
   if (!user) return <Login email={loginEmail} setEmail={setLoginEmail} pass={loginPass} setPass={setLoginPass} err={loginErr} onLogin={handleLogin}/>;
 
   return (
     <div style={S.shell}>
       <Sidebar page={page} setPage={setPage} user={user} syncStatus={syncStatus} lastSync={lastSync} onRefresh={fetchAll} onLogout={()=>{setUser(null);setSyncStatus("idle");clearInterval(pollRef.current);}}/>
-      <main style={S.main}>
-        {page==="overview"  && <OverviewPage  revenue={revenue}  activeSector={activeSector} setActiveSector={setActiveSector} isOwner={isOwner} onEditRev={r=>setRevModal(r)}/>}
-        {page==="rocks"     && <RocksPage     rocks={rocks}      isOwner={isOwner} isAdmin={isAdmin} onSave={saveRock} onDelete={deleteRock} modal={rockModal} setModal={setRockModal}/>}
-        {page==="scorecard" && <ScorecardPage rocks={rocks}      revenue={revenue}/>}
-        {page==="audit"     && <AuditPage     isAdmin={isAdmin}/>}
-      </main>
+      <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
+        {/* ── TOPBAR ── */}
+        <div style={{background:C.card,borderBottom:`1px solid ${C.border}`,padding:"10px 32px",display:"flex",alignItems:"center",gap:12,position:"relative",zIndex:50,boxShadow:"0 1px 4px rgba(15,28,46,0.06)"}}>
+          <div style={{flex:1,position:"relative",maxWidth:480}}>
+            <span style={{position:"absolute",left:12,top:"50%",transform:"translateY(-50%)",color:C.muted,fontSize:14,pointerEvents:"none"}}>⌕</span>
+            <input
+              style={{width:"100%",boxSizing:"border-box",padding:"8px 12px 8px 34px",border:`1px solid ${showSearch&&searchQ?C.accent:C.border}`,borderRadius:6,fontSize:12,background:C.bg,color:C.text,outline:"none",fontFamily:"inherit",transition:"border 0.2s"}}
+              placeholder="Search BUs, rocks, owners, goals…"
+              value={searchQ}
+              onChange={e=>{setSearchQ(e.target.value);setShowSearch(true);}}
+              onFocus={()=>setShowSearch(true)}
+              onBlur={()=>setTimeout(()=>setShowSearch(false),200)}
+            />
+            {/* Search Results Dropdown */}
+            {showSearch && searchQ.trim().length>=2 && (
+              <div style={{position:"absolute",top:"calc(100% + 6px)",left:0,right:0,background:C.card,border:`1px solid ${C.border}`,borderRadius:8,boxShadow:"0 8px 24px rgba(15,28,46,0.15)",zIndex:200,overflow:"hidden"}}>
+                {searchResults.length===0?(
+                  <div style={{padding:"14px 16px",fontSize:12,color:C.muted}}>No results for "{searchQ}"</div>
+                ):searchResults.map((r,i)=>(
+                  <div key={i} onMouseDown={r.onClick} style={{padding:"10px 16px",cursor:"pointer",borderBottom:i<searchResults.length-1?`1px solid ${C.border}`:"none",display:"flex",alignItems:"center",gap:10,background:"transparent"}}
+                    onMouseEnter={e=>e.currentTarget.style.background=C.bg}
+                    onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                    <span style={{fontSize:16,width:20,color:r.type==="revenue"?"#1a3f7a":"#0e7490"}}>{r.type==="revenue"?"▣":"◈"}</span>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontSize:12,fontWeight:600,color:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.label}</div>
+                      <div style={{fontSize:11,color:C.muted,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.sub}</div>
+                    </div>
+                    {r.tag&&<span style={{fontSize:10,color:GOAL_COLORS[r.tag]||C.muted,background:`${GOAL_COLORS[r.tag]||C.muted}18`,padding:"2px 8px",borderRadius:10,whiteSpace:"nowrap",flexShrink:0}}>{GOAL_SHORT[r.tag]||r.tag}</span>}
+                  </div>
+                ))}
+                {searchResults.length>0&&<div style={{padding:"6px 16px",fontSize:10,color:C.muted,borderTop:`1px solid ${C.border}`,background:C.bg}}>{searchResults.length} result{searchResults.length!==1?"s":""} — click to navigate</div>}
+              </div>
+            )}
+          </div>
+          <div style={{fontSize:11,color:C.muted,marginLeft:"auto",whiteSpace:"nowrap"}}>
+            {new Date().toLocaleDateString("en-PH",{weekday:"short",month:"short",day:"numeric",year:"numeric"})}
+          </div>
+        </div>
+        {/* ── MAIN CONTENT ── */}
+        <main style={S.main}>
+          {page==="overview"  && <OverviewPage  revenue={revenue}  activeSector={activeSector} setActiveSector={setActiveSector} isOwner={isOwner} onEditRev={r=>setRevModal(r)}/>}
+          {page==="rocks"     && <RocksPage     rocks={rocks}      isOwner={isOwner} isAdmin={isAdmin} onSave={saveRock} onDelete={deleteRock} modal={rockModal} setModal={setRockModal}/>}
+          {page==="scorecard" && <ScorecardPage rocks={rocks}      revenue={revenue}/>}
+          {page==="audit"     && <AuditPage     isAdmin={isAdmin}/>}
+        </main>
+      </div>
       {revModal&&isOwner&&<RevModal data={revModal} isAdmin={isAdmin} onSave={async u=>{await saveRevenue(u);setRevModal(null);}} onClose={()=>setRevModal(null)}/>}
     </div>
   );
@@ -660,93 +719,188 @@ function RockRow({rock,isOwner,onEdit,onDelete}) {
 
 // ─── SCORECARD ────────────────────────────────────────────────────────────────
 function ScorecardPage({rocks,revenue}) {
-  const [sec,setSec]=useState(SECTORS[0]);
-  const sR=rocks.filter(r=>r.sector===sec), sV=revenue.filter(r=>r.sector===sec);
-  const tA=sV.reduce((s,r)=>s+(r.annual_target||0),0), tQ1T=sV.reduce((s,r)=>s+(r.q1_target||0),0);
-  const tQ1A=sV.reduce((s,r)=>s+(r.q1_actual||0),0), tYTD=sV.reduce((s,r)=>s+(r.ytd_actual||0),0);
-  const n=sR.length, met=sR.filter(r=>r.status==="✓ Target Met").length;
-  const onT=sR.filter(r=>r.status==="On Track").length, atR=sR.filter(r=>r.status==="At Risk").length;
-  const pend=sR.filter(r=>r.status==="Pending").length;
-  const avg=n?Math.round(sR.reduce((s,r)=>s+(r.progress||0),0)/n):0;
-  const clr=SECTOR_CLR[sec]||"#7a8c7e";
+  const [sec,setSec] = useState(SECTORS[0]);
+  const [activeQ,setActiveQ] = useState("Q1");
+  const clr = SECTOR_CLR[sec]||"#1a3f7a";
+
+  // Revenue for selected sector & quarter
+  const sV  = revenue.filter(r=>r.sector===sec);
+  const tA  = sV.reduce((s,r)=>s+(r.annual_target||0),0);
+  const tQT = sV.reduce((s,r)=>s+(r[`${activeQ.toLowerCase()}_target`]||0),0);
+  const tQA = sV.reduce((s,r)=>s+(r[`${activeQ.toLowerCase()}_actual`]||0),0);
+  const tYTD= sV.reduce((s,r)=>s+(r.q1_actual||0)+(r.q2_actual||0)+(r.q3_actual||0)+(r.q4_actual||0),0);
+
+  // Rocks for selected sector & quarter
+  const sR  = rocks.filter(r=>r.sector===sec&&(r.quarter||"Q1")===activeQ);
+  const n   = sR.length;
+  const met = sR.filter(r=>r.status==="✓ Target Met").length;
+  const onT = sR.filter(r=>r.status==="On Track").length;
+  const atR = sR.filter(r=>r.status==="At Risk").length;
+  const pend= sR.filter(r=>r.status==="Pending").length;
+  const avg = n?Math.round(sR.reduce((s,r)=>s+(r.progress||0),0)/n):0;
+
   return (
     <div style={S.page}>
-      <PH title="Sector Scorecard" sub="Deep-dive performance by sector · Q1 & YTD 2026"/>
+      <PH title="Sector Scorecard" sub={`Deep-dive performance by sector · ${activeQ} 2026`}/>
+
+      {/* Sector Tabs */}
       <div style={S.filterRow}>
         {SECTORS.map(s=>(
           <button key={s} style={{...S.filterBtn,...(sec===s?{...S.filterBtnActive,borderColor:SECTOR_CLR[s]}:{})}} onClick={()=>setSec(s)}>
-            {s==="Construction & Manufacturing"?"Construction":s==="Real Estate & Property Management"?"Real Estate":s==="Human Capital Development"?"Human Capital":s==="Maritime Logistics"?"Maritime":""}
+            {s==="Construction & Manufacturing"?"Construction":s==="Real Estate & Property Management"?"Real Estate":s==="Human Capital Development"?"Human Capital":"Maritime"}
           </button>
         ))}
       </div>
+
+      {/* Quarter Switcher */}
+      <div style={{display:"flex",gap:8,marginBottom:20,alignItems:"center"}}>
+        <span style={{fontSize:11,color:C.muted,letterSpacing:1}}>QUARTER:</span>
+        {["Q1","Q2","Q3","Q4"].map(q=>(
+          <button key={q} onClick={()=>setActiveQ(q)} style={{
+            padding:"5px 14px", borderRadius:4, cursor:"pointer", letterSpacing:1, fontSize:12,
+            border:`1px solid ${activeQ===q?clr:C.border}`,
+            background: activeQ===q?clr:"none",
+            color: activeQ===q?"#fff":C.muted,
+            fontWeight: activeQ===q?700:400,
+          }}>{q}</button>
+        ))}
+        <span style={{fontSize:11,color:C.muted,marginLeft:4}}>{Q_MONTHS[activeQ]} 2026</span>
+      </div>
+
       <div style={{borderLeft:`4px solid ${clr}`,paddingLeft:16,marginBottom:24}}>
         <div style={{fontSize:18,fontWeight:700,color:C.text}}>{sec}</div>
+        <div style={{fontSize:12,color:C.muted,marginTop:2}}>{activeQ} · {Q_MONTHS[activeQ]} 2026</div>
       </div>
+
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
+
+        {/* ── Revenue Panel ── */}
         <div style={S.panel}>
-          <div style={S.panelTitle}>Revenue Performance</div>
+          <div style={S.panelTitle}>Revenue Performance · {activeQ}</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:16}}>
-            <MP label="Annual Target" val={fmt(tA)}/>
-            <MP label="Q1 Target"     val={fmt(tQ1T)}/>
-            <MP label="Q1 Actual"     val={fmt(tQ1A)} hi/>
-            <MP label="YTD Actual"    val={fmt(tYTD)} hi/>
+            <MP label="Annual Target"       val={fmt(tA)}/>
+            <MP label={`${activeQ} Target`} val={fmt(tQT)}/>
+            <MP label={`${activeQ} Actual`} val={fmt(tQA)} hi/>
+            <MP label="YTD Actual"          val={fmt(tYTD)} hi/>
           </div>
-          <PBar label={`Q1: ${fmt(tQ1A)} of ${fmt(tQ1T)}`}     p={pct(tQ1A,tQ1T)}  clr={clr} showPct/>
-          <PBar label={`YTD: ${fmt(tYTD)} of ${fmt(tA)}`}      p={pct(tYTD,tA)}    clr={clr} showPct/>
-          <div style={{marginTop:20}}>
-            <div style={{fontSize:10,color:C.muted,textTransform:"uppercase",letterSpacing:1.5,marginBottom:10}}>By Business Unit</div>
-            {sV.map(r=>(
-              <div key={r.id} style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
-                <span style={{...S.buTag,minWidth:54,textAlign:"center"}}>{r.company}</span>
-                <div style={{flex:1}}>
-                  <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:C.muted,marginBottom:3}}>
-                    <span>Q1: {fmt(r.q1_actual||0)} / {fmt(r.q1_target||0)}</span><span>{pct(r.q1_actual||0,r.q1_target||0)}%</span>
-                  </div>
-                  <div style={{height:6,background:C.border,borderRadius:3,overflow:"hidden"}}>
-                    <div style={{height:"100%",width:`${pct(r.q1_actual||0,r.q1_target||0)}%`,background:clr,borderRadius:3}}/>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div style={S.panel}>
-          <div style={S.panelTitle}>Rocks Summary</div>
-          <div style={{display:"flex",alignItems:"center",gap:20,marginBottom:12}}>
-            <Donut met={met} onT={onT} atR={atR} pend={pend} n={n}/>
-            <div>
-              {[["#0e7a5a","Target Met",met],["#1a5fb4","On Track",onT],["#c0480a","At Risk",atR],["#64748b","Pending",pend]].map(([c,l,v])=>(
-                <div key={l} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-                  <div style={{width:10,height:10,borderRadius:"50%",background:c}}/><span style={{fontSize:12,color:"#334155"}}>{l}</span><span style={{fontSize:12,fontWeight:700,color:"#0f1c2e",marginLeft:"auto"}}>{v}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <PBar label="Avg Rock Progress" p={avg} clr={clr} showPct/>
-          <div style={{marginTop:20}}>
-            <div style={{fontSize:10,color:C.muted,textTransform:"uppercase",letterSpacing:1.5,marginBottom:10}}>Rocks Detail</div>
-            {sR.map(r=>{
-              const cfg=STATUS_CFG[r.status]||STATUS_CFG["Pending"], p=r.progress||0;
-              const pc=p>=100?"#0e7a5a":p>=70?"#1a5fb4":p>=40?"#c0480a":"#dc2626";
+          <PBar label={`${activeQ}: ${fmt(tQA)} of ${fmt(tQT)}`} p={pct(tQA,tQT)}  clr={clr} showPct/>
+          <PBar label={`YTD: ${fmt(tYTD)} of ${fmt(tA)}`}        p={pct(tYTD,tA)}  clr={clr} showPct/>
+
+          {/* All 4 quarters mini bars */}
+          <div style={{marginTop:16,paddingTop:16,borderTop:`1px solid ${C.border}`}}>
+            <div style={{fontSize:10,color:C.muted,textTransform:"uppercase",letterSpacing:1.5,marginBottom:10}}>All Quarters</div>
+            {["Q1","Q2","Q3","Q4"].map(q=>{
+              const qt=sV.reduce((s,r)=>s+(r[`${q.toLowerCase()}_target`]||0),0);
+              const qa=sV.reduce((s,r)=>s+(r[`${q.toLowerCase()}_actual`]||0),0);
+              const p=pct(qa,qt);
               return (
-                <div key={r.id} style={{display:"flex",alignItems:"center",gap:10,marginBottom:10,flexWrap:"wrap"}}>
-                  <div style={{flex:1,minWidth:150}}>
-                    <span style={{fontSize:10,fontWeight:700,color:"#1d4ed8",marginRight:6}}>{r.bu}</span>
-                    <span style={{fontSize:11,color:"#334155"}}>{r.initiative}</span>
+                <div key={q} style={{marginBottom:8}}>
+                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
+                    <span style={{fontSize:11,fontWeight:q===activeQ?700:400,color:q===activeQ?C.text:C.muted}}>{q} {Q_MONTHS[q]}</span>
+                    <span style={{fontSize:11,color:C.muted}}>{fmt(qa)} / {fmt(qt)} <span style={{fontWeight:700,color:p>=100?"#0e7a5a":p>=75?"#1a5fb4":"#c0480a"}}>{p}%</span></span>
                   </div>
-                  <div style={{minWidth:180}}>
-                    <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
-                      <span style={{fontSize:11,color:C.muted}}>{r.target}</span><span style={{color:pc,fontWeight:700,fontSize:13}}>{p}%</span>
-                    </div>
-                    <div style={{height:6,background:C.border,borderRadius:3,overflow:"hidden"}}><div style={{height:"100%",width:`${Math.min(p,100)}%`,background:pc,borderRadius:3}}/></div>
+                  <div style={{height:q===activeQ?7:4,background:C.border,borderRadius:3,overflow:"hidden",border:q===activeQ?`1px solid ${clr}`:"none"}}>
+                    <div style={{height:"100%",width:`${Math.min(p,100)}%`,background:q===activeQ?clr:C.muted,borderRadius:3,opacity:q===activeQ?1:0.5}}/>
                   </div>
-                  <span style={{display:"inline-flex",alignItems:"center",gap:5,padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:600,background:cfg.bg,color:cfg.text,marginLeft:8}}>
-                    <span style={{width:6,height:6,borderRadius:"50%",background:cfg.dot}}/>{r.status}
-                  </span>
                 </div>
               );
             })}
           </div>
+
+          {/* BU Breakdown */}
+          <div style={{marginTop:16,paddingTop:16,borderTop:`1px solid ${C.border}`}}>
+            <div style={{fontSize:10,color:C.muted,textTransform:"uppercase",letterSpacing:1.5,marginBottom:10}}>By Business Unit · {activeQ}</div>
+            {sV.map(r=>{
+              const qt=r[`${activeQ.toLowerCase()}_target`]||0;
+              const qa=r[`${activeQ.toLowerCase()}_actual`]||0;
+              return (
+                <div key={r.id} style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
+                  <span style={{...S.buTag,minWidth:54,textAlign:"center"}}>{r.company}</span>
+                  <div style={{flex:1}}>
+                    <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:C.muted,marginBottom:3}}>
+                      <span>{fmt(qa)} / {fmt(qt)}</span><span style={{fontWeight:700,color:pct(qa,qt)>=100?"#0e7a5a":pct(qa,qt)>=75?"#1a5fb4":"#c0480a"}}>{pct(qa,qt)}%</span>
+                    </div>
+                    <div style={{height:6,background:C.border,borderRadius:3,overflow:"hidden"}}>
+                      <div style={{height:"100%",width:`${pct(qa,qt)}%`,background:clr,borderRadius:3}}/>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ── Rocks Panel ── */}
+        <div style={S.panel}>
+          <div style={S.panelTitle}>Rocks Summary · {activeQ}</div>
+          {n===0?(
+            <div style={{textAlign:"center",padding:"30px 0",color:C.muted}}>
+              <div style={{fontSize:20,marginBottom:8}}>◈</div>
+              <div style={{fontSize:13}}>No rocks for {sec.split(" ")[0]} in {activeQ}</div>
+            </div>
+          ):(
+            <>
+              <div style={{display:"flex",alignItems:"center",gap:20,marginBottom:12}}>
+                <Donut met={met} onT={onT} atR={atR} pend={pend} n={n}/>
+                <div>
+                  {[["#0e7a5a","Target Met",met],["#1a5fb4","On Track",onT],["#c0480a","At Risk",atR],["#64748b","Pending",pend]].map(([c,l,v])=>(
+                    <div key={l} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+                      <div style={{width:10,height:10,borderRadius:"50%",background:c}}/><span style={{fontSize:12,color:"#334155"}}>{l}</span><span style={{fontSize:12,fontWeight:700,color:"#0f1c2e",marginLeft:"auto"}}>{v}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <PBar label="Avg Rock Progress" p={avg} clr={clr} showPct/>
+
+              {/* Rocks across all quarters mini summary */}
+              <div style={{marginTop:16,paddingTop:16,borderTop:`1px solid ${C.border}`}}>
+                <div style={{fontSize:10,color:C.muted,textTransform:"uppercase",letterSpacing:1.5,marginBottom:10}}>Rocks by Quarter</div>
+                {["Q1","Q2","Q3","Q4"].map(q=>{
+                  const qr=rocks.filter(r=>r.sector===sec&&(r.quarter||"Q1")===q);
+                  const qmet=qr.filter(r=>r.status==="✓ Target Met").length;
+                  const qavg=qr.length?Math.round(qr.reduce((s,r)=>s+(r.progress||0),0)/qr.length):0;
+                  return (
+                    <div key={q} style={{display:"flex",alignItems:"center",gap:10,marginBottom:8,padding:"6px 10px",borderRadius:6,background:q===activeQ?`${clr}10`:"transparent",border:q===activeQ?`1px solid ${clr}30`:"1px solid transparent"}}>
+                      <span style={{fontSize:11,fontWeight:q===activeQ?700:400,color:q===activeQ?clr:C.muted,minWidth:24}}>{q}</span>
+                      <span style={{fontSize:11,color:C.muted,minWidth:60}}>{qr.length} rocks</span>
+                      <div style={{flex:1,height:4,background:C.border,borderRadius:2,overflow:"hidden"}}>
+                        <div style={{height:"100%",width:`${qavg}%`,background:q===activeQ?clr:"#94a3b8",borderRadius:2}}/>
+                      </div>
+                      <span style={{fontSize:11,color:C.muted,minWidth:36,textAlign:"right"}}>{qavg}%</span>
+                      <span style={{fontSize:10,color:"#0e7a5a",minWidth:40,textAlign:"right"}}>{qmet} met</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div style={{marginTop:16,paddingTop:16,borderTop:`1px solid ${C.border}`}}>
+                <div style={{fontSize:10,color:C.muted,textTransform:"uppercase",letterSpacing:1.5,marginBottom:10}}>Rocks Detail · {activeQ}</div>
+                {sR.map(r=>{
+                  const cfg=STATUS_CFG[r.status]||STATUS_CFG["Pending"], p=r.progress||0;
+                  const pc=p>=100?"#0e7a5a":p>=70?"#1a5fb4":p>=40?"#c0480a":"#dc2626";
+                  return (
+                    <div key={r.id} style={{marginBottom:12}}>
+                      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6,flexWrap:"wrap"}}>
+                        <span style={{fontSize:10,fontWeight:700,color:"#1d4ed8"}}>{r.bu}</span>
+                        <span style={{fontSize:11,color:"#334155",flex:1}}>{r.initiative}</span>
+                        {r.business_goal&&<span style={{fontSize:9,fontWeight:600,color:"#fff",background:GOAL_COLORS[r.business_goal]||C.accent,padding:"1px 6px",borderRadius:8}}>{GOAL_SHORT[r.business_goal]||r.business_goal}</span>}
+                        <span style={{display:"inline-flex",alignItems:"center",gap:4,padding:"2px 8px",borderRadius:12,fontSize:10,fontWeight:600,background:cfg.bg,color:cfg.text}}>
+                          <span style={{width:5,height:5,borderRadius:"50%",background:cfg.dot}}/>{r.status}
+                        </span>
+                      </div>
+                      <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
+                        <span style={{fontSize:10,color:C.muted}}>Target: {r.target}</span>
+                        <span style={{fontSize:11,fontWeight:700,color:pc}}>{p}%</span>
+                      </div>
+                      <div style={{height:5,background:C.border,borderRadius:3,overflow:"hidden"}}>
+                        <div style={{height:"100%",width:`${Math.min(p,100)}%`,background:pc,borderRadius:3}}/>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
