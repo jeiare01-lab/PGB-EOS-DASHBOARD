@@ -92,8 +92,9 @@ const SECTOR_CLR = {
 };
 
 const ROLES = {
-  "bi@pgb.com":    { password:"bi2026",    role:"BI",    label:"Business Integrator" },
-  "admin@pgb.com": { password:"admin2026", role:"Admin", label:"Administrator" },
+  "bi@pgb.com":        { password:"bi2026",      role:"BI",        label:"Business Integrator" },
+  "executive@pgb.com": { password:"exec2026",    role:"Executive", label:"Executive" },
+  "admin@pgb.com":     { password:"admin2026",   role:"Admin",     label:"Administrator" },
 };
 
 const C = { bg:"#e8edf5", surface:"#dce4f0", card:"#ffffff", border:"#b8c5d9", text:"#0a1628", muted:"#2d4a6e", accent:"#1a3f7a" };
@@ -115,7 +116,7 @@ export default function App() {
   const pollRef = useRef(null);
 
   const isAdmin = user?.role==="Admin";
-  const isOwner = user?.role==="BI"||isAdmin;
+  const isOwner = user?.role==="BI"||isAdmin;  // Executive is read-only — excluded here
 
   // ── Audit Log helper ───────────────────────────────────────────────────────
   const writeAudit = async (action, tableName, recordId, fieldChanged, oldValue, newValue) => {
@@ -347,8 +348,11 @@ function Sidebar({page,setPage,user,syncStatus,lastSync,onRefresh,onLogout}) {
         ))}
       </div>
       <div style={{padding:"0 24px"}}>
-        <div style={{fontSize:11,fontWeight:700,letterSpacing:1,textTransform:"uppercase",marginBottom:2,color:user.role==="Admin"?"#f59e0b":"#4a8fd4"}}>
-          {user.label}{user.role==="Admin"&&<span style={{marginLeft:8,background:"#f59e0b",color:"#0a1628",fontSize:9,padding:"2px 6px",borderRadius:3,fontWeight:700}}>ADMIN</span>}
+        <div style={{fontSize:11,fontWeight:700,letterSpacing:1,textTransform:"uppercase",marginBottom:2,
+          color:user.role==="Admin"?"#f59e0b":user.role==="Executive"?"#a78bfa":"#4a8fd4"}}>
+          {user.label}
+          {user.role==="Admin"&&<span style={{marginLeft:8,background:"#f59e0b",color:"#0a1628",fontSize:9,padding:"2px 6px",borderRadius:3,fontWeight:700}}>ADMIN</span>}
+          {user.role==="Executive"&&<span style={{marginLeft:8,background:"#a78bfa",color:"#0a1628",fontSize:9,padding:"2px 6px",borderRadius:3,fontWeight:700}}>READ ONLY</span>}
         </div>
         <div style={{fontSize:10,color:"#2d4a6e",marginBottom:12}}>{user.email}</div>
         <button style={S.btnGhost} onClick={onLogout}>Sign Out</button>
